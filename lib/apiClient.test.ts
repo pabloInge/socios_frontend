@@ -14,7 +14,7 @@ describe('fetchAPI HTTP Client', () => {
         });
 
         const fakeTokenBase64 = 'dXNlcjpwYXNzd29yZA==';
-        
+
         await fetchAPI('/me', fakeTokenBase64);
 
         expect(global.fetch).toHaveBeenCalledWith(
@@ -23,7 +23,7 @@ describe('fetchAPI HTTP Client', () => {
                 headers: expect.any(Headers)
             })
         );
-        
+
         const callArgs = (global.fetch as jest.Mock).mock.calls[0];
         const headersPassed = callArgs[1].headers as Headers;
         expect(headersPassed.get('Authorization')).toBe(`Basic ${fakeTokenBase64}`);

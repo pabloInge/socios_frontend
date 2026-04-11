@@ -1,16 +1,40 @@
-import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import LoginPage from './page';
+import { loginAction } from './actions';
 
-describe('Pantalla de Login', () => {
-    it('debe mostrar el título principal de Iniciar Sesión', () => {
-        // 1. Renderizamos la página
-        render(<LoginPage />);
+jest.mock('./actions', () => ({
+  loginAction: jest.fn(),
+}));
 
-        // 2. Buscamos un elemento <h1> que contenga "Iniciar Sesión"
-        const titulo = screen.getByRole('heading', { level: 1, name: /iniciar sesión/i });
+describe('LoginPage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-        // 3. Verificamos que el título exista en el documento
-        expect(titulo).toBeInTheDocument();
+  it('debe renderizar el formulario correctamente', () => {
+    (loginAction as jest.Mock).mockResolvedValue({});
+
+    render(<LoginPage />);
+    
+    expect(screen.getByLabelText(/usuario/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /ingresar/i })).toBeInTheDocument();
+  });
+
+  it('debe mostrar un error si el Server Action devuelve un mensaje de fallo', async () => {
+    (loginAction as jest.Mock).mockResolvedValue({ error: 'Credenciales inválidas' });
+
+    render(<LoginPage />);
+
+    fireEvent.change(screen.getByLabelText(/usuario/i), { target: { value: 'pablo' } });
+    fireEvent.change(screen.getByLabelText(/contraseña/i), { target: { value: 'clave_mala' } });
+    
+    fireEvent.click(screen.getByRole('button', { name: /ingresar/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Credenciales inválidas')).toBeInTheDocument();
     });
+    
+    expect(loginAction).toHaveBeenCalled();
+  });
 });
