@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, Settings, Home as HomeIcon, Heart, User, Plus, Pencil, Trash, Check, X, Info, AlertTriangle, Menu, ChevronRight, Share2, Mail, MessageSquare } from "lucide-react";
+import { Bell, Search, Settings, Home as HomeIcon, Heart, User, Plus, Pencil, Trash, Check, X, Info, AlertTriangle, Menu, ChevronRight, Share2, Mail, MessageSquare, Eye, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardMedia, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,14 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
 
 function ShowcaseSection({ title, description, children }: {
   title: string;
@@ -262,6 +270,54 @@ export default function Home() {
           </ShowcaseSection>
 
           <ShowcaseSection
+            title="Tabla de Datos"
+            description="Visualización de información estructurada con estilos M3 Flat, soporte para acciones inline y estados visuales."
+          >
+            <div className="bg-surface-container-lowest rounded-[28px] border border-outline-variant overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nombre completo</TableHead>
+                    <TableHead>Categoría</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead className="text-center">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium text-foreground">Juan Pérez</TableCell>
+                    <TableCell className="text-on-surface-variant">Administrador</TableCell>
+                    <TableCell>
+                      <Chip variant="assist" className="pointer-events-none">Activo</Chip>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-center gap-2">
+                        <Button variant="ghost" size="icon-sm" title="Visualizar"><Eye /></Button>
+                        <Button variant="ghost" size="icon-sm" title="Editar"><Edit /></Button>
+                        <Button variant="ghost" size="icon-sm" title="Eliminar" className="text-destructive"><Trash2 /></Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium text-foreground">Ana García</TableCell>
+                    <TableCell className="text-on-surface-variant">Socio Vitalicio</TableCell>
+                    <TableCell>
+                      <Chip variant="assist" className="pointer-events-none">Al día</Chip>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-center gap-2">
+                        <Button variant="ghost" size="icon-sm" title="Visualizar"><Eye /></Button>
+                        <Button variant="ghost" size="icon-sm" title="Editar"><Edit /></Button>
+                        <Button variant="ghost" size="icon-sm" title="Eliminar" className="text-destructive"><Trash2 /></Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </ShowcaseSection>
+
+          <ShowcaseSection
             title="Botones de Acción Flotante (FAB)"
             description="Acción principal de la pantalla. Disponible en cuatro tamaños y variantes de color."
           >
@@ -414,6 +470,9 @@ export default function Home() {
                 { Icon: Share2, label: "Compartir" },
                 { Icon: Mail, label: "Correo" },
                 { Icon: MessageSquare, label: "Chat" },
+                { Icon: Eye, label: "Visualizar" },
+                { Icon: Edit, label: "Modificar" },
+                { Icon: Trash2, label: "Papelera" },
               ].map(({ Icon, label }) => (
                 <div key={label} className="flex flex-col items-center gap-3 group cursor-pointer transition-transform active:scale-90">
                   <div className="size-12 rounded-2xl bg-surface-container-highest flex items-center justify-center transition-colors group-hover:bg-primary/10">
