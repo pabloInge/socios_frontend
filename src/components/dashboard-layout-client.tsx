@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from "react"
+import { Usuario } from "@/lib/auth"
 import {
   Users,
   Briefcase,
@@ -55,7 +56,13 @@ const navItems = [
   { id: "caja", label: "Caja", icon: <Wallet size={22} /> },
 ]
 
-export function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
+export function DashboardLayoutClient({ 
+  children, 
+  usuario 
+}: { 
+  children: React.ReactNode,
+  usuario: Usuario
+}) {
   const [activeItem, setActiveItem] = useState("usuarios")
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
     socios: false,
@@ -211,7 +218,12 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
                 className="p-1 hover:bg-surface-container-low border border-transparent hover:border-outline-variant"
               >
                 <div className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-medium text-sm">
-                  JP
+                  {usuario.nombre
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()
+                    .substring(0, 2)}
                 </div>
               </Button>
               {isProfileOpen && (
@@ -223,7 +235,7 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
                     <p className="text-[10px] text-primary font-bold uppercase tracking-wider mb-0.5">
                       Usuario
                     </p>
-                    <p className="text-lg font-semibold text-foreground">Juan Pérez</p>
+                    <p className="text-lg font-semibold text-foreground">{usuario.nombre}</p>
                   </div>
                   <div className="h-[1px] bg-outline-variant mx-4 mb-2"></div>
                   <div className="px-2 space-y-0.5">
