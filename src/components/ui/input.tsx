@@ -162,8 +162,8 @@ const Input = React.forwardRef<
                     isError ? "text-destructive peer-focus:text-destructive"
                     : isWarning ? "text-yellow-600 dark:text-yellow-500 peer-focus:text-yellow-500"
                     : "text-on-surface-variant peer-focus:text-primary",
-                    "peer-focus:-translate-y-7 peer-focus:scale-75 peer-focus:py-px peer-focus:px-1 peer-focus:[background:var(--background)]",
-                    "peer-[:not(:placeholder-shown)]:-translate-y-7 peer-[:not(:placeholder-shown)]:scale-75 peer-[:not(:placeholder-shown)]:py-px peer-[:not(:placeholder-shown)]:px-1 peer-[:not(:placeholder-shown)]:[background:var(--background)]",
+                    "peer-focus:-translate-y-7 peer-focus:scale-75 peer-focus:py-px peer-focus:px-1 peer-focus:bg-[var(--input-bg,var(--background))]",
+                    "peer-[:not(:placeholder-shown)]:-translate-y-7 peer-[:not(:placeholder-shown)]:scale-75 peer-[:not(:placeholder-shown)]:py-px peer-[:not(:placeholder-shown)]:px-1 peer-[:not(:placeholder-shown)]:bg-[var(--input-bg,var(--background))]",
                   ],
               "peer-disabled:opacity-50"
             )}
