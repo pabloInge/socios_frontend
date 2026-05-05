@@ -5,7 +5,7 @@ export interface Usuario {
 }
 
 export async function obtenerSesion(): Promise<Usuario | null> {
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.ENV === 'develop') {
     return { logueado: true, nombre: 'Juan Pérez', rol: 'admin' };
   }
 

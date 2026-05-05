@@ -14,8 +14,8 @@ export const socioSchema = z.object({
   plan: z.string().min(1, "El plan es obligatorio"),
   sepelio: z.string().optional(),
   cobrador: z.string().min(1, "El cobrador es obligatorio"),
-  telefonos: z.array(z.string()).optional(),
-  correos: z.array(z.string().email("Correo inválido")).optional(),
+  telefonos: z.array(z.union([z.string(), z.object({ value: z.string() })])).optional(),
+  correos: z.array(z.union([z.string(), z.object({ value: z.string().email("Correo inválido") })])).optional(),
 });
 
 export type SocioFormData = z.infer<typeof socioSchema>;

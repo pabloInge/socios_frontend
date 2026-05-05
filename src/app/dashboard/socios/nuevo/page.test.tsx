@@ -20,7 +20,7 @@ jest.mock('../../../../components/ui/select', () => ({
     <div onClick={() => onValueChange && onValueChange('A')}>{children}</div>
   ),
   SelectTrigger: ({ children, label, id }: { children: React.ReactNode; label?: string; id?: string }) => (
-    <button id={id} aria-label={label}>{children}</button>
+    <button type="button" id={id} aria-label={label}>{children}</button>
   ),
   SelectValue: () => null,
   SelectContent: () => null,
@@ -45,29 +45,33 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
     await userEvent.type(screen.getAllByLabelText(/nombre/i)[0], 'Juan');
     await userEvent.type(screen.getAllByLabelText(/apellido/i)[0], 'Pérez');
     await userEvent.type(screen.getAllByLabelText(/dni/i)[0], '12345678');
-    await userEvent.type(screen.getAllByLabelText(/fecha de nacimiento/i)[0], '1990-01-01');
+    fireEvent.change(screen.getAllByLabelText(/fecha de nacimiento/i)[0], { target: { value: '1990-01-01' } });
     await userEvent.type(screen.getAllByLabelText(/ciudad/i)[0], 'Buenos Aires');
     await userEvent.type(screen.getAllByLabelText(/calle/i)[0], 'Falsa');
     await userEvent.type(screen.getAllByLabelText(/altura/i)[0], '123');
-    await userEvent.type(screen.getAllByLabelText(/fecha de alta/i)[0], '2024-01-01');
+    fireEvent.change(screen.getAllByLabelText(/fecha de alta/i)[0], { target: { value: '2024-01-01' } });
     
     fireEvent.click(await screen.findByLabelText(/plan/i));
     fireEvent.click(await screen.findByLabelText(/cobrador/i));
     
     await userEvent.type((await screen.findAllByLabelText(/teléfono/i))[0], '12345678');
-    const buttons = await screen.findAllByRole('button');
-    const addTelBtn = buttons.find(b => b.textContent?.includes('Teléfono'));
-    if (addTelBtn) fireEvent.click(addTelBtn);
+    const agregarButtons = screen.getAllByRole('button', { name: /agregar/i });
+    await userEvent.click(agregarButtons[0]);
 
     await userEvent.type((await screen.findAllByLabelText(/correo electrónico/i))[0], 'test@example.com');
-    const addMailBtn = buttons.find(b => /mail/i.test(b.textContent || ''));
-    if (addMailBtn) fireEvent.click(addMailBtn);
+    await userEvent.click(agregarButtons[1]);
 
-    const grabarBtn = buttons.find(b => /grabar/i.test(b.textContent || ''));
-    if (grabarBtn) fireEvent.click(grabarBtn);
+    const grabarBtn = await screen.findByRole('button', { name: /grabar/i });
+    fireEvent.click(grabarBtn);
 
     await waitFor(() => {
-      expect(mockGuardarSocio).toHaveBeenCalled();
+      expect(mockGuardarSocio).toHaveBeenCalledWith(expect.objectContaining({
+        nombre: 'Juan',
+        apellido: 'Pérez',
+        dni: '12345678',
+        telefonos: ['12345678'],
+        correos: ['test@example.com']
+      }));
     });
   }, 15000);
 
