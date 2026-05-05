@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import {
   Table,
   TableHeader,
@@ -443,6 +445,107 @@ export default function Home() {
                   <p>Ajustes del sistema</p>
                 </TooltipContent>
               </Tooltip>
+            </div>
+          </ShowcaseSection>
+
+          <ShowcaseSection
+            title="Select"
+            description="Componente de selección desplegable con soporte para etiquetas flotantes y variantes M3."
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 max-w-4xl">
+              <Select>
+                <SelectTrigger label="Plan de Socio" variant="filled">
+                  <SelectValue placeholder="Seleccione un plan" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Planes disponibles</SelectLabel>
+                    <SelectItem value="a">Plan A - Estándar</SelectItem>
+                    <SelectItem value="b">Plan B - Premium</SelectItem>
+                    <SelectItem value="c">Plan C - Familiar</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+
+              <Select>
+                <SelectTrigger label="Estado de Cuenta" variant="outlined">
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Activo</SelectItem>
+                  <SelectItem value="inactive">Inactivo</SelectItem>
+                  <SelectItem value="pending">Pendiente</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </ShowcaseSection>
+
+          <ShowcaseSection
+            title="Diálogos (Modales)"
+            description="Ventanas emergentes centradas para tareas críticas o información adicional."
+          >
+            <div className="flex flex-wrap gap-4">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline">Abrir Diálogo Simple</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>¿Confirmar acción?</DialogTitle>
+                    <DialogDescription>
+                      Esta acción no se puede deshacer. Esto eliminará permanentemente los datos seleccionados.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter className="mt-6">
+                    <DialogClose asChild>
+                      <Button variant="ghost">Cancelar</Button>
+                    </DialogClose>
+                    <Button variant="default">Confirmar</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="secondary">Buscar Obra Social</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Buscar Obra Social</DialogTitle>
+                  </DialogHeader>
+                  <div className="py-4 space-y-4">
+                    <Input label="Nombre de la obra social" variant="outlined" />
+                    <div className="rounded-xl border border-outline-variant overflow-hidden">
+                       <Table>
+                         <TableHeader>
+                           <TableRow>
+                             <TableHead>Id</TableHead>
+                             <TableHead>Nombre</TableHead>
+                             <TableHead></TableHead>
+                           </TableRow>
+                         </TableHeader>
+                         <TableBody>
+                           <TableRow>
+                             <TableCell>001</TableCell>
+                             <TableCell>PAMI</TableCell>
+                             <TableCell className="text-right"><Button size="sm">Elegir</Button></TableCell>
+                           </TableRow>
+                           <TableRow>
+                             <TableCell>002</TableCell>
+                             <TableCell>OSDE</TableCell>
+                             <TableCell className="text-right"><Button size="sm">Elegir</Button></TableCell>
+                           </TableRow>
+                         </TableBody>
+                       </Table>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="outline">Cerrar</Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </ShowcaseSection>
 

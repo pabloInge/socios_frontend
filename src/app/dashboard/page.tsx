@@ -22,7 +22,6 @@ type Socio = {
   estado: "Al día" | "Pendiente" | "Vencido"
 }
 
-// Data limpia, sin registros fantasmas
 const tableData: Socio[] = []
 
 const m3Easing = "cubic-bezier(0.2, 0.0, 0, 1.0)"
