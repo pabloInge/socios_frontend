@@ -4,6 +4,8 @@ import * as React from "react"
 import { useForm, useFieldArray, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus, Search, Check } from "lucide-react"
+import { useRouter } from "next/navigation"
+
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,6 +20,7 @@ import { socioSchema, SocioFormData } from "./schema"
 import { guardarSocio } from "./actions"
 
 export default function NuevoSocioPage() {
+  const router = useRouter()
   const {
     register,
     handleSubmit,
@@ -409,7 +412,7 @@ export default function NuevoSocioPage() {
               type="button"
               variant="outline"
               className="w-full md:w-40"
-              onClick={() => window.location.reload()}
+              onClick={() => router.push("/dashboard/socios")}
             >
               Cancelar
             </Button>

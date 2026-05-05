@@ -20,16 +20,34 @@ import {
   HeartHandshake,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useRouter, usePathname } from "next/navigation"
+
 
 const m3Easing = "cubic-bezier(0.2, 0.0, 0, 1.0)"
 
-const navItems = [
+type NavSubItem = {
+  id: string
+  label: string
+  icon: React.ReactNode
+  url?: string
+}
+
+type NavItem = {
+  id: string
+  label: string
+  icon: React.ReactNode
+  url?: string
+  subItems?: NavSubItem[]
+}
+
+const navItems: NavItem[] = [
   { id: "usuarios", label: "Usuarios", icon: <Users size={22} /> },
   { id: "empleados", label: "Empleados", icon: <Briefcase size={22} /> },
   {
     id: "socios",
     label: "Socios",
     icon: <Users size={22} />,
+    url: "/dashboard/socios",
     subItems: [
       { id: "nichos", label: "Nichos", icon: <Grid size={18} /> },
       {
@@ -63,7 +81,21 @@ export function DashboardLayoutClient({
   children: React.ReactNode,
   usuario: Usuario
 }) {
-  const [activeItem, setActiveItem] = useState("usuarios")
+  const router = useRouter()
+  const pathname = usePathname()
+  
+  const activeItem = React.useMemo(() => {
+    const matchingItem = navItems.find(item => 
+      (item.url && pathname === item.url) || 
+      (item.subItems && item.subItems.some(sub => pathname === sub.url))
+    )
+    if (matchingItem) return matchingItem.id
+    
+    const allSubItems = navItems.flatMap(i => i.subItems || [])
+    const matchingSub = allSubItems.find(sub => sub.url && pathname === sub.url)
+    return matchingSub ? matchingSub.id : "usuarios"
+  }, [pathname])
+
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
     socios: false,
     colaboradores: false,
@@ -71,6 +103,18 @@ export function DashboardLayoutClient({
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const matchingItem = navItems.find(item => 
+      (item.url && pathname === item.url) || 
+      (item.subItems && item.subItems.some(sub => pathname === sub.url))
+    )
+    
+    if (matchingItem && matchingItem.subItems) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setExpandedItems(prev => ({ ...prev, [matchingItem.id]: true }))
+    }
+  }, [pathname])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -120,9 +164,10 @@ export function DashboardLayoutClient({
             <div key={item.id} className="w-full">
               <Button
                 variant="ghost"
-                onClick={() =>
-                  item.subItems ? toggleSubmenu(item.id) : setActiveItem(item.id)
-                }
+                onClick={() => {
+                  if (item.subItems) toggleSubmenu(item.id)
+                  if (item.url) router.push(item.url)
+                }}
                 className={`relative w-full justify-start h-auto px-4 py-3 group
                   ${
                     activeItem === item.id
@@ -171,7 +216,9 @@ export function DashboardLayoutClient({
                       <Button
                         variant="ghost"
                         key={sub.id}
-                        onClick={() => setActiveItem(sub.id)}
+                        onClick={() => {
+                          if (sub.url) router.push(sub.url)
+                        }}
                         className={`w-full justify-start h-auto
                           ${isSidebarOpen ? "gap-3 px-4 py-2.5 text-sm" : "justify-center p-2.5"}
                           ${

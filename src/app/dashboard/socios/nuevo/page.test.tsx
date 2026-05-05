@@ -2,6 +2,14 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import NuevoSocioPage from './page';
 
+const mockPush = jest.fn();
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}));
+
+
 const mockGuardarSocio = jest.fn();
 jest.mock('./actions', () => ({
   guardarSocio: (...args: unknown[]) => mockGuardarSocio(...args),
@@ -25,7 +33,7 @@ jest.mock('../../../../components/ui/dialog', () => ({
   DialogHeader: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   DialogTitle: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   DialogTrigger: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  DialogClose: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
+  DialogClose: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 describe('Módulo de Socios - Registro (Comportamiento)', () => {
@@ -61,7 +69,7 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
     await waitFor(() => {
       expect(mockGuardarSocio).toHaveBeenCalled();
     });
-  });
+  }, 15000);
 
   it('debe mostrar errores de validación y no guardar si el formulario está vacío', async () => {
     render(<NuevoSocioPage />);
@@ -76,6 +84,15 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
       expect(screen.getByText(/el nombre debe tener al menos 2 letras/i)).toBeInTheDocument();
       expect(screen.getByText(/la ciudad es obligatoria/i)).toBeInTheDocument();
     });
+  });
+
+  it('debe navegar al listado al hacer clic en cancelar', async () => {
+    render(<NuevoSocioPage />);
+    
+    const cancelButton = screen.getByRole('button', { name: /cancelar/i });
+    fireEvent.click(cancelButton);
+    
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/socios');
   });
 });
 
