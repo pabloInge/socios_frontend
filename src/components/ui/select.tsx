@@ -24,39 +24,49 @@ const SelectTrigger = React.forwardRef<
   const selectId = id || generatedId
 
   const valueRef = React.useRef<HTMLSpanElement>(null)
+  const [hasValue, setHasValue] = React.useState(false)
   
   React.useEffect(() => {
     if (!valueRef.current) return
+    const checkValue = () => {
+      const hasPlaceholder = valueRef.current?.querySelector('[data-placeholder]') !== null
+      setHasValue(!hasPlaceholder && !!valueRef.current?.textContent?.trim())
+    }
+    
+    checkValue()
+    
     const observer = new MutationObserver(() => {
+      checkValue()
     })
-    observer.observe(valueRef.current, { childList: true, characterData: true, subtree: true })
+    observer.observe(valueRef.current, { childList: true, characterData: true, subtree: true, attributes: true })
     return () => observer.disconnect()
   }, [])
 
   return (
-    <div className="group relative w-full">
+    <div className="group relative w-full isolate">
       <SelectPrimitive.Trigger
         ref={ref}
         id={selectId}
+        data-has-value={hasValue}
         className={cn(
           "peer group flex h-14 w-full items-center justify-between rounded-[4px] px-4 text-base ring-offset-background placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 transition-all duration-200",
           variant === "filled" && [
             "bg-surface-container-highest rounded-t-[4px] rounded-b-none border-b border-on-surface-variant/40",
             "hover:bg-surface-container-high",
-            "focus:border-b-2 focus:border-primary",
-            error && "border-destructive focus:border-destructive"
+            "focus:border-b-2 focus:border-primary data-[state=open]:border-b-2 data-[state=open]:border-primary",
+            error && "border-destructive focus:border-destructive data-[state=open]:border-destructive"
           ],
           variant === "outlined" && [
             "bg-transparent border border-outline",
             "hover:border-on-surface",
-            "focus:border-2 focus:border-primary",
-            error && "border-destructive focus:border-destructive"
+            "focus:border-2 focus:border-primary data-[state=open]:border-2 data-[state=open]:border-primary",
+            error && "border-destructive focus:border-destructive data-[state=open]:border-destructive"
           ],
           className
         )}
         {...props}
       >
-        <span ref={valueRef} className="pt-2">{children}</span>
+        <span ref={valueRef} className={cn("pt-2", label && !hasValue && "opacity-0 group-focus:opacity-100 group-data-[state=open]:opacity-100 transition-opacity")}>{children}</span>
         <SelectPrimitive.Icon asChild>
           <ChevronDown className="h-4 w-4 opacity-50 transition-transform duration-300 group-data-[state=open]:rotate-180" />
         </SelectPrimitive.Icon>
@@ -68,12 +78,18 @@ const SelectTrigger = React.forwardRef<
             "pointer-events-none absolute left-4 z-10 origin-[0] transform font-medium transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)]",
             variant === "filled"
               ? [
-                  "top-4 -translate-y-3 scale-75 text-sm",
-                  error ? "text-destructive" : "text-on-surface-variant peer-focus:text-primary",
+                  "top-4 scale-100 text-base",
+                  error ? "text-destructive" : "text-on-surface-variant peer-focus:text-primary peer-data-[state=open]:text-primary",
+                  "peer-data-[has-value=true]:-translate-y-3 peer-data-[has-value=true]:scale-75 peer-data-[has-value=true]:text-sm",
+                  "peer-focus:-translate-y-3 peer-focus:scale-75 peer-focus:text-sm",
+                  "peer-data-[state=open]:-translate-y-3 peer-data-[state=open]:scale-75 peer-data-[state=open]:text-sm",
                 ]
               : [
-                  "top-4 -translate-y-7 scale-75 text-base bg-[var(--input-bg,var(--background))] px-1",
-                  error ? "text-destructive" : "text-on-surface-variant peer-focus:text-primary",
+                  "top-4 scale-100 text-base",
+                  error ? "text-destructive peer-focus:text-destructive peer-data-[state=open]:text-destructive" : "text-on-surface-variant peer-focus:text-primary peer-data-[state=open]:text-primary",
+                  "peer-data-[has-value=true]:-translate-y-7 peer-data-[has-value=true]:scale-75 peer-data-[has-value=true]:bg-[var(--input-bg,var(--background))] peer-data-[has-value=true]:px-1",
+                  "peer-focus:-translate-y-7 peer-focus:scale-75 peer-focus:bg-[var(--input-bg,var(--background))] peer-focus:px-1",
+                  "peer-data-[state=open]:-translate-y-7 peer-data-[state=open]:scale-75 peer-data-[state=open]:bg-[var(--input-bg,var(--background))] peer-data-[state=open]:px-1",
                 ]
           )}
         >

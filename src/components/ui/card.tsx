@@ -65,6 +65,7 @@ function Card({
           "absolute inset-0 z-[1] pointer-events-none transition-colors duration-300 ease-[cubic-bezier(0.2,0,0,1)]",
           "group-hover/card:bg-on-surface-variant/[0.08]",
           "group-focus-visible/card:bg-on-surface-variant/[0.12]",
+          "group-has-[[data-state=open]]/card:bg-on-surface-variant/[0.12]",
           "group-active/card:bg-on-surface-variant/[0.12]"
         )} />
       )}
