@@ -21,6 +21,8 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter, usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
+
 
 
 const m3Easing = "cubic-bezier(0.2, 0.0, 0, 1.0)"
@@ -168,13 +170,13 @@ export function DashboardLayoutClient({
                   if (item.subItems) toggleSubmenu(item.id)
                   if (item.url) router.push(item.url)
                 }}
-                className={`relative w-full justify-start h-auto px-4 py-3 group
-                  ${
-                    activeItem === item.id
-                      ? "bg-primary-container text-on-primary-container hover:bg-primary-container/90"
-                      : "text-on-surface-variant hover:bg-surface-container"
-                  }
-                  ${!isSidebarOpen && "justify-center px-0"} active:scale-[0.98]`}
+                className={cn(
+                  "relative w-full justify-start h-auto px-4 py-3 group",
+                  activeItem === item.id
+                    ? "bg-primary-container text-on-primary-container hover:bg-primary-container/90"
+                    : "text-on-surface-variant hover:bg-surface-container",
+                  !isSidebarOpen && "justify-center px-0"
+                )}
                 style={{ transitionTimingFunction: m3Easing }}
               >
                 <div className="flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
@@ -219,13 +221,13 @@ export function DashboardLayoutClient({
                         onClick={() => {
                           if (sub.url) router.push(sub.url)
                         }}
-                        className={`w-full justify-start h-auto
-                          ${isSidebarOpen ? "gap-3 px-4 py-2.5 text-sm" : "justify-center p-2.5"}
-                          ${
-                            activeItem === sub.id
-                              ? "bg-secondary-container text-on-secondary-container hover:bg-secondary-container/90"
-                              : "text-on-surface-variant hover:bg-surface-container"
-                          } active:scale-[0.98]`}
+                        className={cn(
+                          "w-full justify-start h-auto",
+                          isSidebarOpen ? "gap-3 px-4 py-2.5 text-sm" : "justify-center p-2.5",
+                          activeItem === sub.id
+                            ? "bg-secondary-container text-on-secondary-container hover:bg-secondary-container/90"
+                            : "text-on-surface-variant hover:bg-surface-container"
+                        )}
                       >
                         <div className="flex-shrink-0">{sub.icon}</div>
                         {isSidebarOpen && <span>{sub.label}</span>}
