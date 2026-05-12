@@ -174,7 +174,7 @@ export function DashboardLayoutClient({
                       ? "bg-primary-container text-on-primary-container hover:bg-primary-container/90"
                       : "text-on-surface-variant hover:bg-surface-container"
                   }
-                  ${!isSidebarOpen && "justify-center px-0"} active:scale-95`}
+                  ${!isSidebarOpen && "justify-center px-0"} active:scale-[0.98]`}
                 style={{ transitionTimingFunction: m3Easing }}
               >
                 <div className="flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
@@ -225,7 +225,7 @@ export function DashboardLayoutClient({
                             activeItem === sub.id
                               ? "bg-secondary-container text-on-secondary-container hover:bg-secondary-container/90"
                               : "text-on-surface-variant hover:bg-surface-container"
-                          } active:scale-95`}
+                          } active:scale-[0.98]`}
                       >
                         <div className="flex-shrink-0">{sub.icon}</div>
                         {isSidebarOpen && <span>{sub.label}</span>}

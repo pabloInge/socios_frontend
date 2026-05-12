@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const fabVariants = cva(
-  "inline-flex items-center justify-center shadow-m3-3 hover:shadow-m3-4 transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)] active:scale-90 active:shadow-m3-3 disabled:pointer-events-none disabled:opacity-50 group [&_svg]:transition-transform [&_svg]:duration-500 hover:[&_svg]:rotate-90",
+  "inline-flex items-center justify-center shadow-m3-3 hover:shadow-m3-4 transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)] active:scale-96 active:shadow-m3-3 disabled:pointer-events-none disabled:opacity-50 group [&_svg]:transition-transform [&_svg]:duration-500 hover:[&_svg]:rotate-90",
   {
     variants: {
       variant: {

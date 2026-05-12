@@ -25,7 +25,7 @@ function Card({
         "group/card relative flex overflow-hidden text-sm outline-none isolate",
         orientation === "vertical" ? "flex-col" : "flex-row",
         "transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)]",
-        interactive && "cursor-pointer active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary",
+        interactive && "cursor-pointer active:scale-[0.995] focus-visible:ring-2 focus-visible:ring-primary",
 
         size === "default" && "rounded-card",
         size === "sm" && "rounded-md",

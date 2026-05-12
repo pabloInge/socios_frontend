@@ -577,7 +577,7 @@ export default function Home() {
                 { Icon: Edit, label: "Modificar" },
                 { Icon: Trash2, label: "Papelera" },
               ].map(({ Icon, label }) => (
-                <div key={label} className="flex flex-col items-center gap-3 group cursor-pointer transition-transform active:scale-90">
+                <div key={label} className="flex flex-col items-center gap-3 group cursor-pointer transition-transform active:scale-[0.98]">
                   <div className="size-12 rounded-2xl bg-surface-container-highest flex items-center justify-center transition-colors group-hover:bg-primary/10">
                     <Icon className="size-6 text-on-surface-variant group-hover:text-primary transition-colors" />
                   </div>
