@@ -28,7 +28,7 @@ export default function NuevoSocioPage() {
     setValue,
     formState: { errors },
   } = useForm<SocioFormData>({
-    resolver: zodResolver(socioSchema),
+    resolver: zodResolver(socioSchema as any),
     defaultValues: {
       fechaAlta: new Date().toISOString().split("T")[0],
       telefonos: [],

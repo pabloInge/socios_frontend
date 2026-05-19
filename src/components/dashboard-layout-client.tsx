@@ -88,13 +88,13 @@ export function DashboardLayoutClient({
   
   const activeItem = React.useMemo(() => {
     const matchingItem = navItems.find(item => 
-      (item.url && pathname === item.url) || 
-      (item.subItems && item.subItems.some(sub => pathname === sub.url))
+      (item.url && (pathname === item.url || pathname.startsWith(item.url + "/"))) || 
+      (item.subItems && item.subItems.some(sub => sub.url && (pathname === sub.url || pathname.startsWith(sub.url + "/"))))
     )
     if (matchingItem) return matchingItem.id
     
     const allSubItems = navItems.flatMap(i => i.subItems || [])
-    const matchingSub = allSubItems.find(sub => sub.url && pathname === sub.url)
+    const matchingSub = allSubItems.find(sub => sub.url && (pathname === sub.url || pathname.startsWith(sub.url + "/")))
     return matchingSub ? matchingSub.id : "usuarios"
   }, [pathname])
 

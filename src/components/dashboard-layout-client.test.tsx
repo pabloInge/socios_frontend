@@ -75,4 +75,17 @@ describe('DashboardLayoutClient', () => {
     expect(sociosBtn).toHaveClass('bg-primary-container')
   })
 
+  it('debe resaltar el ítem Socios cuando el pathname es una subruta como /dashboard/socios/nuevo', () => {
+    mockPathname.mockReturnValue('/dashboard/socios/nuevo')
+    
+    render(
+      <DashboardLayoutClient usuario={mockUsuario as Usuario}>
+        <div>Contenido</div>
+      </DashboardLayoutClient>
+    )
+    
+    const sociosBtn = screen.getByRole('button', { name: /socios/i })
+    expect(sociosBtn).toHaveClass('bg-primary-container')
+  })
+
 })
