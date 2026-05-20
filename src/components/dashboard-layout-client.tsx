@@ -18,6 +18,9 @@ import {
   CreditCard,
   FileText,
   HeartHandshake,
+  Lock,
+  Coins,
+  TrendingUp,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter, usePathname } from "next/navigation"
@@ -43,37 +46,65 @@ type NavItem = {
 }
 
 const navItems: NavItem[] = [
-  { id: "usuarios", label: "Usuarios", icon: <Users size={22} /> },
-  { id: "empleados", label: "Empleados", icon: <Briefcase size={22} /> },
+  {
+    id: "caja",
+    label: "Caja",
+    icon: <Wallet size={22} />,
+    url: "/dashboard/caja",
+    subItems: [
+      { id: "cierres", label: "Cierres", icon: <Lock size={18} />, url: "/dashboard/caja/cierres" },
+    ],
+  },
   {
     id: "socios",
     label: "Socios",
     icon: <Users size={22} />,
     url: "/dashboard/socios",
     subItems: [
-      { id: "nichos", label: "Nichos", icon: <Grid size={18} /> },
+      {
+        id: "gestion_cuotas",
+        label: "Gestión cuotas",
+        icon: <FileText size={18} />,
+        url: "/dashboard/socios/gestion-cuotas",
+      },
+      {
+        id: "alta_nichos",
+        label: "Alta nichos",
+        icon: <Grid size={18} />,
+        url: "/dashboard/socios/alta-nichos",
+      },
       {
         id: "config_cuotas",
         label: "Configuración cuotas",
         icon: <CreditCard size={18} />,
+        url: "/dashboard/socios/configuracion-cuotas",
       },
-      { id: "generar_deuda", label: "Generar deuda", icon: <FileText size={18} /> },
+      {
+        id: "config_metodos_pago",
+        label: "Configuración métodos pago",
+        icon: <Coins size={18} />,
+        url: "/dashboard/socios/configuracion-metodos-pago",
+      },
     ],
   },
   {
     id: "colaboradores",
     label: "Colaboradores",
     icon: <UserPlus size={22} />,
+    url: "/dashboard/colaboradores",
     subItems: [
       {
         id: "prestaciones",
         label: "Prestaciones",
         icon: <HeartHandshake size={18} />,
+        url: "/dashboard/colaboradores/prestaciones",
       },
     ],
   },
-  { id: "proveedores", label: "Proveedores", icon: <Truck size={22} /> },
-  { id: "caja", label: "Caja", icon: <Wallet size={22} /> },
+  { id: "proveedores", label: "Proveedores", icon: <Truck size={22} />, url: "/dashboard/proveedores" },
+  { id: "reportes", label: "Reportes", icon: <TrendingUp size={22} />, url: "/dashboard/reportes" },
+  { id: "empleados", label: "Empleados", icon: <Briefcase size={22} />, url: "/dashboard/empleados" },
+  { id: "usuarios", label: "Usuarios", icon: <Users size={22} />, url: "/dashboard/usuarios" },
 ]
 
 export function DashboardLayoutClient({ 
@@ -91,14 +122,17 @@ export function DashboardLayoutClient({
       (item.url && (pathname === item.url || pathname.startsWith(item.url + "/"))) || 
       (item.subItems && item.subItems.some(sub => sub.url && (pathname === sub.url || pathname.startsWith(sub.url + "/"))))
     )
-    if (matchingItem) return matchingItem.id
-    
+    return matchingItem ? matchingItem.id : "usuarios"
+  }, [pathname])
+
+  const activeSubItem = React.useMemo(() => {
     const allSubItems = navItems.flatMap(i => i.subItems || [])
     const matchingSub = allSubItems.find(sub => sub.url && (pathname === sub.url || pathname.startsWith(sub.url + "/")))
-    return matchingSub ? matchingSub.id : "usuarios"
+    return matchingSub ? matchingSub.id : null
   }, [pathname])
 
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
+    caja: false,
     socios: false,
     colaboradores: false,
   })
@@ -224,7 +258,7 @@ export function DashboardLayoutClient({
                         className={cn(
                           "w-full justify-start h-auto",
                           isSidebarOpen ? "gap-3 px-4 py-2.5 text-sm" : "justify-center p-2.5",
-                          activeItem === sub.id
+                          activeSubItem === sub.id
                             ? "bg-secondary-container text-on-secondary-container hover:bg-secondary-container/90"
                             : "text-on-surface-variant hover:bg-surface-container"
                         )}

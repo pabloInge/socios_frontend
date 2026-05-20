@@ -49,7 +49,7 @@ describe('DashboardLayoutClient', () => {
     expect(mockPush).toHaveBeenCalledWith('/dashboard/socios')
   })
 
-  it('no debe navegar al hacer clic en un ítem sin URL (como Usuarios)', () => {
+  it('debe navegar al listado de usuarios al hacer clic en el botón Usuarios', () => {
     render(
       <DashboardLayoutClient usuario={mockUsuario as Usuario}>
         <div>Contenido</div>
@@ -59,7 +59,7 @@ describe('DashboardLayoutClient', () => {
     const usuariosBtn = screen.getByRole('button', { name: /usuarios/i })
     fireEvent.click(usuariosBtn)
     
-    expect(mockPush).not.toHaveBeenCalled()
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/usuarios')
   })
 
   it('debe resaltar el ítem activo basado en el pathname', () => {
@@ -86,6 +86,19 @@ describe('DashboardLayoutClient', () => {
     
     const sociosBtn = screen.getByRole('button', { name: /socios/i })
     expect(sociosBtn).toHaveClass('bg-primary-container')
+  })
+
+  it('debe resaltar el sub-ítem activo basado en el pathname', () => {
+    mockPathname.mockReturnValue('/dashboard/socios/alta-nichos')
+    
+    render(
+      <DashboardLayoutClient usuario={mockUsuario as Usuario}>
+        <div>Contenido</div>
+      </DashboardLayoutClient>
+    )
+    
+    const altaNichosBtn = screen.getByRole('button', { name: /alta nichos/i })
+    expect(altaNichosBtn).toHaveClass('bg-secondary-container')
   })
 
 })

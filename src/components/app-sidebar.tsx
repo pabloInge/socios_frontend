@@ -16,12 +16,13 @@ type NavItem = {
 }
 
 const navItems: NavItem[] = [
-  { title: "Usuarios", url: "/dashboard/usuarios" },
-  { title: "Empleados", url: "/dashboard/empleados" },
+  { title: "Caja", url: "/dashboard/caja" },
   { title: "Socios", url: "/dashboard/socios" },
   { title: "Colaboradores", url: "/dashboard/colaboradores" },
   { title: "Proveedores", url: "/dashboard/proveedores" },
-  { title: "Caja", url: "/dashboard/caja" },
+  { title: "Reportes", url: "/dashboard/reportes" },
+  { title: "Empleados", url: "/dashboard/empleados" },
+  { title: "Usuarios", url: "/dashboard/usuarios" },
 ]
 
 export function AppSidebar() {

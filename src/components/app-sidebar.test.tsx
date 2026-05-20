@@ -16,5 +16,6 @@ describe('AppSidebar (Menú Principal)', () => {
     expect(screen.getByText(/colaboradores/i)).toBeInTheDocument();
     expect(screen.getByText(/proveedores/i)).toBeInTheDocument();
     expect(screen.getByText(/caja/i)).toBeInTheDocument();
+    expect(screen.getByText(/reportes/i)).toBeInTheDocument();
   });
 });

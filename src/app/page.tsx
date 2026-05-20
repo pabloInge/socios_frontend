@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, Settings, Home as HomeIcon, Heart, User, Plus, Pencil, Trash, Check, X, Info, AlertTriangle, Menu, ChevronRight, Share2, Mail, MessageSquare, Eye, Edit, Trash2 } from "lucide-react";
+import { Bell, Search, Settings, Home as HomeIcon, Heart, User, Plus, Pencil, Trash, Check, X, Info, AlertTriangle, Menu, ChevronRight, Share2, Mail, MessageSquare, Eye, Edit, Trash2, Lock, Coins, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardMedia, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -576,6 +576,9 @@ export default function Home() {
                 { Icon: Eye, label: "Visualizar" },
                 { Icon: Edit, label: "Modificar" },
                 { Icon: Trash2, label: "Papelera" },
+                { Icon: Lock, label: "Cierres" },
+                { Icon: Coins, label: "Métodos Pago" },
+                { Icon: TrendingUp, label: "Reportes" },
               ].map(({ Icon, label }) => (
                 <div key={label} className="flex flex-col items-center gap-3 group cursor-pointer transition-transform active:scale-[0.98]">
                   <div className="size-12 rounded-2xl bg-surface-container-highest flex items-center justify-center transition-colors group-hover:bg-primary/10">
