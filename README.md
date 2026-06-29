@@ -1,38 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Socios Frontend
 
-## Getting Started
+Next.js 16 + React 19 + Tailwind v4 + Material Design 3.
 
-First, run the development server:
+## Entornos
+
+El proyecto soporta **tres instancias**, controladas por la variable `ENV`:
+
+| `ENV`      | Origen de datos             | `NEXT_PUBLIC_API_URL`            |
+|------------|-----------------------------|----------------------------------|
+| `develop`  | Mocks en memoria            | — (no se usa)                    |
+| `stg`      | API real de staging         | `http://cjr-staging.runasp.net/api/v1` |
+| `prod`     | API real de producción      | _por definir_                    |
+
+Cuando `ENV=develop`, **todo** el fetch se intercepta en `src/lib/apiClient.ts` y devuelve datos de `src/lib/mocks.ts`. No se toca la red. El login acepta cualquier usuario/contraseña.
+
+Cuando `ENV=stg` o `ENV=prod`, `fetchAPI` pega contra `NEXT_PUBLIC_API_URL` con Basic Auth (`usuario:contraseña` en base64) tomada de la cookie `authToken`.
+
+## Cómo correr
+
+### Local — DEV con todo mockeado (por defecto)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm dev          # usa .env.local → ENV=develop → TODO mockeado
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrí http://localhost:3000. Entrá a `/dashboard` directamente (sesión mockeada). El login acepta cualquier credencial.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Local — contra API de staging
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm dev:stg      # carga .env.stg
+```
 
-## Learn More
+Acá el login valida de verdad contra `{API_URL}/me`. Necesitás un usuario/contraseña válido en stg.
 
-To learn more about Next.js, take a look at the following resources:
+### Local — contra API de producción
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm dev:prod     # carga .env.prod (editar la URL antes)
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+> ⚠️ La API de stg está en HTTP. Si probás desde el browser en `https://localhost`, habrá *mixed content*; usá `http://localhost:3000`. Las llamadas server-side (Server Actions, Server Components) no tienen ese problema.
 
-## Deploy on Vercel
+## Build por entorno
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm build        # usa el .env.local actual
+pnpm build:stg    # carga .env.stg
+pnpm build:prod   # carga .env.prod
+pnpm start        # sirve el build producido
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deploy en Vercel
 
-## Rebuild
+En **Project Settings → Environment Variables** crear dos variables, una por cada Vercel environment:
+
+| Vercel Environment | `ENV`   | `NEXT_PUBLIC_API_URL`                       |
+|--------------------|---------|---------------------------------------------|
+| Production         | `prod`  | _URL de prod_                               |
+| Preview            | `stg`   | `http://cjr-staging.runasp.net/api/v1`      |
+| Development        | `develop` | —                                         |
+
+Como `NEXT_PUBLIC_API_URL` es `NEXT_PUBLIC_*`, Vercel la reemplaza en **build time** → tras cambiarla hay que **redeployear**.
+
+## Tests
+
+```bash
+pnpm test         # jest
+pnpm test:watch
+```
+
+Todos los tests corren con `ENV=develop` forzado en `jest.setup.ts`, así que nunca tocan la red.
+
+## Estructura relevante
+
+- `src/lib/apiClient.ts` — cliente HTTP + dispatcher de mocks.
+- `src/lib/mocks.ts` — datos mockeados centralizados.
+- `src/lib/auth.ts` — `obtenerSesion()`: mock en dev, valida cookie contra `/me` en stg/prod.
+- `src/proxy.ts` — proxy (renombrado desde `middleware.ts` en Next.js 16).
+- `src/app/login/actions.ts` — `loginAction`: Basic Auth contra `/me`.
+- `src/app/dashboard/socios/actions.ts` — `obtenerSocios()`: mock en dev, GET `/socios` en stg/prod.

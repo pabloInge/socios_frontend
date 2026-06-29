@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState(loginAction, {});
+  const error = pending ? undefined : state?.error;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4 text-foreground">
@@ -28,7 +29,7 @@ export default function LoginPage() {
               type="text"
               required
               disabled={pending}
-              error={!!state?.error}
+              error={!!error}
             />
             <Input
               label="Contraseña"
@@ -37,8 +38,8 @@ export default function LoginPage() {
               type="password"
               required
               disabled={pending}
-              error={!!state?.error}
-              errorText={state?.error}
+              error={!!error}
+              errorText={error}
             />
           </CardContent>
 
