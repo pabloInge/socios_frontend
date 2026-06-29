@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import LoginPage from './page';
 import { loginAction } from './actions';
 
@@ -36,5 +36,38 @@ describe('LoginPage', () => {
     });
     
     expect(loginAction).toHaveBeenCalled();
+  });
+
+  it('no debe volver a mostrar el error mientras se reenvía el formulario', async () => {
+    let resolveSecond: (v: { error?: string }) => void = () => {};
+    const pendingSecond = new Promise<{ error?: string }>((r) => {
+      resolveSecond = r;
+    });
+
+    (loginAction as jest.Mock)
+      .mockResolvedValueOnce({ error: 'Credenciales inválidas' })
+      .mockReturnValueOnce(pendingSecond);
+
+    render(<LoginPage />);
+
+    fireEvent.change(screen.getByLabelText(/usuario/i), { target: { value: 'pablo' } });
+    fireEvent.change(screen.getByLabelText(/contraseña/i), { target: { value: 'mala' } });
+    fireEvent.click(screen.getByRole('button', { name: /ingresar/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Credenciales inválidas')).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText(/usuario/i), { target: { value: 'admin' } });
+    fireEvent.change(screen.getByLabelText(/contraseña/i), { target: { value: '1234' } });
+    fireEvent.click(screen.getByRole('button', { name: /ingresar/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByText('Credenciales inválidas')).not.toBeInTheDocument();
+    });
+
+    act(() => {
+      resolveSecond({});
+    });
   });
 });

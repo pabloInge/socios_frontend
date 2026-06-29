@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FilterToggle, FilterToggleTrigger, FilterToggleContent } from "@/components/ui/filter-toggle";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import {
   Table,
@@ -366,6 +367,66 @@ export default function Home() {
               <Chip variant="filter" selected>Filter</Chip>
               <Chip variant="input" onRemove={() => {}}>Input</Chip>
               <Chip variant="suggestion">Suggestion</Chip>
+            </div>
+          </ShowcaseSection>
+
+          <ShowcaseSection
+            title="Filtros Desplegables"
+            description="Componente colapsable que muestra u oculta paneles de filtrado. Incluye contador de filtros activos y acción de limpiar."
+          >
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <p className="text-[0.65rem] font-bold uppercase tracking-widest text-primary/60 px-1">Con Buscador</p>
+                <FilterToggle>
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <Input label="Buscar" variant="outlined" />
+                    </div>
+                    <FilterToggleTrigger />
+                  </div>
+                  <FilterToggleContent>
+                    <div className="flex flex-wrap gap-4">
+                      <div className="w-40">
+                        <Select>
+                          <SelectTrigger label="Estado" variant="outlined">
+                            <SelectValue placeholder="Todos" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="todos">Todos</SelectItem>
+                            <SelectItem value="activo">Activo</SelectItem>
+                            <SelectItem value="baja">Baja</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="w-40">
+                        <Select>
+                          <SelectTrigger label="Plan" variant="outlined">
+                            <SelectValue placeholder="Todos" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="a">Plan A</SelectItem>
+                            <SelectItem value="b">Plan B</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </FilterToggleContent>
+                </FilterToggle>
+              </div>
+              <div className="space-y-4">
+                <p className="text-[0.65rem] font-bold uppercase tracking-widest text-primary/60 px-1">Con Filtros Activos</p>
+                <FilterToggle defaultOpen>
+                  <FilterToggleTrigger activeCount={2} onClear={() => {}} />
+                  <FilterToggleContent>
+                    <div className="flex flex-wrap gap-3">
+                      <Chip variant="filter" selected>Activo</Chip>
+                      <Chip variant="filter" selected>Plan A</Chip>
+                      <Chip variant="filter">Plan B</Chip>
+                      <Chip variant="filter">Baja</Chip>
+                    </div>
+                  </FilterToggleContent>
+                </FilterToggle>
+              </div>
             </div>
           </ShowcaseSection>
 

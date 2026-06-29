@@ -301,7 +301,7 @@ export function DashboardLayoutClient({
                 className="p-1 hover:bg-surface-container-low border border-transparent hover:border-outline-variant"
               >
                 <div className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-medium text-sm">
-                  {usuario.nombre
+                  {(usuario.nombre ?? "?")
                     .split(" ")
                     .map((n) => n[0])
                     .join("")

@@ -1,4 +1,16 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
+
+process.env.ENV = 'develop';
+process.env.NEXT_PUBLIC_API_URL = 'http://localhost:5000/api';
+
+global.fetch = jest.fn(() =>
+  Promise.reject(
+    new Error(
+      'Los tests no deben realizar llamadas reales a la red. ' +
+        'Mockeá fetch en el test o usá ENV=develop.'
+    )
+  )
+) as jest.Mock;
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
