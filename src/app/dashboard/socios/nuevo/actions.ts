@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { SocioFormData } from './schema';
+import { clearSociosCache } from '../actions';
 
 const MOCK_SOCIOS: (SocioFormData & { id: string })[] = [
   {
@@ -87,5 +88,6 @@ export async function guardarSocio(data: SocioFormData) {
     console.info("Simulación de guardado (sin backend activo):", error);
   }
 
+  clearSociosCache();
   redirect('/dashboard/socios');
 }
