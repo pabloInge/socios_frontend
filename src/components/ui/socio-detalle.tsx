@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Chip } from "@/components/ui/chip"
+import { Separator } from "@/components/ui/separator"
 import type { SocioDetalle } from "@/app/dashboard/socios/actions"
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
@@ -43,14 +43,11 @@ export function SocioDetalleCard({ socio }: { socio: SocioDetalle }) {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-8 space-y-6">
-          <div className="flex flex-wrap gap-3">
-            <Chip variant="assist" className="pointer-events-none">{socio.obraSocial || "Sin obra social"}</Chip>
-            <Chip variant="assist" className="pointer-events-none">Plan {socio.plan}</Chip>
-            <Chip variant="assist" className="pointer-events-none">{socio.sepelio === "SI" ? "Sepelio incluido" : "Sin sepelio"}</Chip>
-            <Chip variant="assist" className="pointer-events-none">{socio.cobrador === "SI" ? "Cobrador asignado" : "Sin cobrador"}</Chip>
-          </div>
+        <CardContent className="pt-8">
           <div className="flex flex-wrap gap-x-10 gap-y-3">
+            <FieldRow label="ID" value={socio.id} />
+            <FieldRow label="Estado" value={socio.fechaBaja ? "Baja" : "Activo"} />
+            <FieldRow label="Fecha de Nacimiento" value={socio.fechaNacimiento} />
             <FieldRow label="Fecha de Alta" value={socio.fechaAlta} />
             {socio.fechaBaja && (
               <FieldRow label="Fecha de Baja" value={socio.fechaBaja} />
@@ -60,40 +57,10 @@ export function SocioDetalleCard({ socio }: { socio: SocioDetalle }) {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <SectionCard title="Información Personal">
-          <FieldRow label="Nombre" value={`${socio.nombre} ${socio.apellido}`} />
-          <FieldRow label="Fecha de Nacimiento" value={socio.fechaNacimiento} />
-          <FieldRow label="Tipo Documento" value={socio.tipoDocumento} />
-          <FieldRow label="N° Documento" value={socio.nroDocumento} />
-        </SectionCard>
-
         <SectionCard title="Dirección">
           <FieldRow label="Ciudad" value={socio.ciudad} />
           <FieldRow label="Calle" value={socio.calle} />
           <FieldRow label="Altura" value={socio.altura} />
-        </SectionCard>
-
-        <SectionCard title="Contacto">
-          {socio.telefonos.length > 0 ? (
-            <div className="space-y-1.5">
-              <p className="text-xs font-bold tracking-widest text-on-surface-variant/60">Teléfonos</p>
-              {socio.telefonos.map((tel, i) => (
-                <p key={i} className="text-base font-medium text-foreground">{tel}</p>
-              ))}
-            </div>
-          ) : (
-            <FieldRow label="Teléfonos" value={null} />
-          )}
-          {socio.correos.length > 0 ? (
-            <div className="space-y-1.5">
-              <p className="text-xs font-bold tracking-widest text-on-surface-variant/60">Correos Electrónicos</p>
-              {socio.correos.map((correo, i) => (
-                <p key={i} className="text-base font-medium text-foreground">{correo}</p>
-              ))}
-            </div>
-          ) : (
-            <FieldRow label="Correos Electrónicos" value={null} />
-          )}
         </SectionCard>
 
         <SectionCard title="Plan y Cobertura">
@@ -103,6 +70,31 @@ export function SocioDetalleCard({ socio }: { socio: SocioDetalle }) {
           <FieldRow label="Cobrador" value={socio.cobrador === "SI" ? "Asignado" : "No asignado"} />
         </SectionCard>
       </div>
+
+      <Separator />
+
+      <section className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-6">
+          {socio.telefonos.length > 0 ? (
+            <div className="space-y-1.5 min-w-0">
+              <p className="text-xs font-bold tracking-widest text-on-surface-variant/60">Teléfonos</p>
+              {socio.telefonos.map((tel, i) => (
+                <p key={i} className="text-base font-medium text-foreground break-words">{tel}</p>
+              ))}
+            </div>
+          ) : (
+            <FieldRow label="Teléfonos" value={null} />
+          )}
+          {socio.correos.length > 0 ? (
+            <div className="space-y-1.5 min-w-0">
+              <p className="text-xs font-bold tracking-widest text-on-surface-variant/60">Correos Electrónicos</p>
+              {socio.correos.map((correo, i) => (
+                <p key={i} className="text-base font-medium text-foreground break-words">{correo}</p>
+              ))}
+            </div>
+          ) : (
+            <FieldRow label="Correos Electrónicos" value={null} />
+          )}
+      </section>
     </div>
   )
 }

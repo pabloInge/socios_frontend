@@ -30,18 +30,20 @@ describe('SocioDetalleCard', () => {
 
   it('debe mostrar las secciones de información', () => {
     render(<SocioDetalleCard socio={mockSocio} />);
-    expect(screen.getByText('Información Personal')).toBeInTheDocument();
     expect(screen.getByText('Dirección')).toBeInTheDocument();
-    expect(screen.getByText('Contacto')).toBeInTheDocument();
     expect(screen.getByText('Plan y Cobertura')).toBeInTheDocument();
   });
 
-  it('debe mostrar los chips de resumen', () => {
+  it('debe mostrar el ID y el estado del socio', () => {
     render(<SocioDetalleCard socio={mockSocio} />);
-    expect(screen.getAllByText('PAMI').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText('Plan A')).toBeInTheDocument();
-    expect(screen.getByText('Sepelio incluido')).toBeInTheDocument();
-    expect(screen.getByText('Sin cobrador')).toBeInTheDocument();
+    expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.getByText('Activo')).toBeInTheDocument();
+  });
+
+  it('debe mostrar estado "Baja" cuando el socio tiene fecha de baja', () => {
+    const conBaja = { ...mockSocio, fechaBaja: '2024-12-01' };
+    render(<SocioDetalleCard socio={conBaja} />);
+    expect(screen.getByText('Baja')).toBeInTheDocument();
   });
 
   it('debe mostrar los teléfonos y correos', () => {
@@ -50,10 +52,11 @@ describe('SocioDetalleCard', () => {
     expect(screen.getByText('juan.perez@example.com')).toBeInTheDocument();
   });
 
-  it('debe mostrar "Sin obra social" cuando obraSocial no está definida', () => {
+  it('debe mostrar guion cuando obraSocial no está definida', () => {
     const sinObra = { ...mockSocio, obraSocial: undefined };
     render(<SocioDetalleCard socio={sinObra} />);
-    expect(screen.getByText('Sin obra social')).toBeInTheDocument();
+    expect(screen.getByText('Obra Social')).toBeInTheDocument();
+    expect(screen.getByText('—')).toBeInTheDocument();
   });
 
   it('debe mostrar los datos de dirección', () => {
@@ -76,23 +79,11 @@ describe('SocioDetalleCard', () => {
     expect(screen.getByText('3418765432')).toBeInTheDocument();
   });
 
-  it('debe mostrar todos los campos del formulario de registro', () => {
+  it('debe mostrar todos los campos de la cobertura', () => {
     render(<SocioDetalleCard socio={mockSocio} />);
-    expect(screen.getByText('Juan Pérez')).toBeInTheDocument();
-    expect(screen.getByText('1990-01-01')).toBeInTheDocument();
-    expect(screen.getByText('DNI')).toBeInTheDocument();
-    expect(screen.getByText('12345678')).toBeInTheDocument();
+    expect(screen.getByText('PAMI')).toBeInTheDocument();
     expect(screen.getByText('A')).toBeInTheDocument();
     expect(screen.getByText('Incluido')).toBeInTheDocument();
     expect(screen.getByText('No asignado')).toBeInTheDocument();
-    expect(screen.getByText('2024-01-01')).toBeInTheDocument();
-  });
-
-  it('debe mostrar los chips con pointer-events-none', () => {
-    render(<SocioDetalleCard socio={mockSocio} />);
-    const chips = screen.getAllByRole('button');
-    chips.forEach((chip) => {
-      expect(chip.className).toContain('pointer-events-none');
-    });
   });
 });
