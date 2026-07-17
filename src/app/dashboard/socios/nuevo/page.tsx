@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Chip } from "@/components/ui/chip"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { DataTable, type Column } from "@/components/ui/data-table"
 import { Separator } from "@/components/ui/separator"
 import { Card } from "@/components/ui/card"
 import { Fab } from "@/components/ui/fab"
@@ -24,6 +24,13 @@ const MOCK_OBRAS_SOCIALES = [
   { id: "2", nombre: "IAPOS" },
   { id: "3", nombre: "OSDE" },
   { id: "4", nombre: "Jerárquicos Salud" },
+]
+
+type ObraSocial = (typeof MOCK_OBRAS_SOCIALES)[number]
+
+const OBRAS_SOCIALES_COLUMNS: Column<ObraSocial>[] = [
+  { key: "id", header: "Id", accessor: (o) => o.id, searchable: true },
+  { key: "nombre", header: "Nombre", accessor: (o) => o.nombre, searchable: true },
 ]
 
 function NuevoSocioForm() {
@@ -413,36 +420,25 @@ function NuevoSocioForm() {
                       <DialogTitle>Buscar obra social</DialogTitle>
                     </DialogHeader>
                     <div className="py-4 space-y-4">
-                      <Input label="Nombre de la obra social" variant="outlined" />
-                      <div className="rounded-xl border border-outline-variant overflow-hidden">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Id</TableHead>
-                              <TableHead>Nombre</TableHead>
-                              <TableHead></TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {MOCK_OBRAS_SOCIALES.map((os) => (
-                              <TableRow key={os.id}>
-                                <TableCell>{os.id}</TableCell>
-                                <TableCell>{os.nombre}</TableCell>
-                                <TableCell className="text-right">
-                                  <DialogClose asChild>
-                                    <Button
-                                      size="sm"
-                                      onClick={() => setValue("obraSocial", os.nombre)}
-                                    >
-                                      Elegir
-                                    </Button>
-                                  </DialogClose>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
+                      <DataTable<ObraSocial>
+                        storageKey="obras-sociales-selector"
+                        data={MOCK_OBRAS_SOCIALES}
+                        columns={OBRAS_SOCIALES_COLUMNS}
+                        getRowId={(o) => o.id}
+                        searchPlaceholder="Buscar obra social por id o nombre"
+                        emptyMessage="No se encontraron obras sociales"
+                        columnsLabel="Columnas"
+                        renderActions={(os) => (
+                          <DialogClose asChild>
+                            <Button
+                              size="sm"
+                              onClick={() => setValue("obraSocial", os.nombre)}
+                            >
+                              Elegir
+                            </Button>
+                          </DialogClose>
+                        )}
+                      />
                     </div>
                   </DialogContent>
                 </Dialog>
