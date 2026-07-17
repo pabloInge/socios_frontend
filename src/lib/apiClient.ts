@@ -1,8 +1,7 @@
 import { getMockResponse } from "./mocks";
+import { isMockMode, getApiUrl } from "./env";
 
-export function isMockMode(): boolean {
-  return process.env.ENV === "develop";
-}
+export { isMockMode };
 
 export async function fetchAPI<T = unknown>(
   endpoint: string,
@@ -13,7 +12,7 @@ export async function fetchAPI<T = unknown>(
     return getMockResponse(endpoint) as T;
   }
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const apiUrl = getApiUrl();
 
   if (!apiUrl) {
     throw new Error(

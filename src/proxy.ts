@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { isMockMode } from '@/lib/env';
 
 export function proxy(request: NextRequest) {
-  if (process.env.ENV === 'develop') {
+  if (isMockMode()) {
     return NextResponse.next();
   }
 

@@ -1,6 +1,7 @@
 "use server";
 
 import { fetchAPI } from "@/lib/apiClient";
+import { isMockMode } from "@/lib/env";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -24,7 +25,7 @@ export async function loginAction(prevState: LoginState, formData: FormData): Pr
     const cookieStore = await cookies();
     cookieStore.set("authToken", tokenBase64, {
       httpOnly: true,
-      secure: process.env.ENV !== "develop",
+      secure: !isMockMode(),
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7,

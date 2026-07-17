@@ -4,7 +4,7 @@ import * as React from "react"
 import { useForm, useFieldArray, useWatch, Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus, Search, Check, X } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,13 +15,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Separator } from "@/components/ui/separator"
 import { Card } from "@/components/ui/card"
 import { Fab } from "@/components/ui/fab"
+import { useSociosService, type SocioDetalle } from "@/lib/socios/service-context"
 
-import { socioSchema, SocioFormData } from "./schema"
-import { guardarSocio, buscarSocioPorDocumento } from "./actions"
+import { socioSchema, SocioFormData, normalizeContacts } from "./schema"
 
-export default function NuevoSocioPage() {
+const MOCK_OBRAS_SOCIALES = [
+  { id: "1", nombre: "PAMI" },
+  { id: "2", nombre: "IAPOS" },
+  { id: "3", nombre: "OSDE" },
+  { id: "4", nombre: "Jerárquicos Salud" },
+]
+
+function NuevoSocioForm() {
   const router = useRouter()
-  const [isVerificado, setIsVerificado] = React.useState(false)
+  const searchParams = useSearchParams()
+  const editId = searchParams.get("edit")
+  const isEdit = Boolean(editId)
+  const sociosService = useSociosService()
+
+  const [isVerificado, setIsVerificado] = React.useState(isEdit)
   const [loadingSearch, setLoadingSearch] = React.useState(false)
 
   const {
@@ -66,16 +78,26 @@ export default function NuevoSocioPage() {
   const nroDocumentoValue = useWatch({ control, name: "nroDocumento" })
 
   const onSubmit = async (data: SocioFormData) => {
-    const formattedData = {
+    const formattedData: SocioFormData = {
       ...data,
-      telefonos: (data.telefonos as unknown as (string | { value: string })[])?.map((t) => 
-        typeof t === "string" ? t : t.value
-      ).filter(Boolean),
-      correos: (data.correos as unknown as (string | { value: string })[])?.map((c) => 
-        typeof c === "string" ? c : c.value
-      ).filter(Boolean),
+      telefonos: normalizeContacts(data.telefonos),
+      correos: normalizeContacts(data.correos),
     }
-    await guardarSocio(formattedData as unknown as SocioFormData)
+
+    try {
+      if (isEdit && editId) {
+        await sociosService.update(editId, formattedData)
+      } else {
+        await sociosService.create(formattedData)
+      }
+      router.push("/dashboard/socios")
+    } catch (err) {
+      console.error("Error al guardar el socio:", err)
+      setError("root", {
+        type: "manual",
+        message: "No se pudo guardar el socio. Intente nuevamente.",
+      })
+    }
   }
 
   const handleAddTelefono = () => {
@@ -107,7 +129,7 @@ export default function NuevoSocioPage() {
     setLoadingSearch(true)
 
     try {
-      const socio = await buscarSocioPorDocumento(tipoDocumentoValue || "DNI", nroDocumentoValue)
+      const socio = await sociosService.findByDocumento(tipoDocumentoValue || "DNI", nroDocumentoValue)
       if (socio) {
         const formattedTelefonos = (socio.telefonos || []).map(t => 
           typeof t === "string" ? { value: t } : t
@@ -169,12 +191,49 @@ export default function NuevoSocioPage() {
     })
   }
 
-  const mockObrasSociales = [
-    { id: "1", nombre: "PAMI" },
-    { id: "2", nombre: "IAPOS" },
-    { id: "3", nombre: "OSDE" },
-    { id: "4", nombre: "Jerárquicos Salud" },
-  ]
+  const populate = React.useCallback(
+    (socio: SocioDetalle | null) => {
+      if (!socio) return
+      reset({
+        tipoDocumento: socio.tipoDocumento as "DNI" | "CUIT",
+        nroDocumento: socio.nroDocumento,
+        nombre: socio.nombre,
+        apellido: socio.apellido,
+        fechaNacimiento: socio.fechaNacimiento,
+        ciudad: socio.ciudad,
+        calle: socio.calle,
+        altura: socio.altura,
+        fechaAlta: socio.fechaAlta,
+        fechaBaja: socio.fechaBaja,
+        obraSocial: socio.obraSocial,
+        plan: socio.plan,
+        sepelio: socio.sepelio ?? "NO",
+        cobrador: socio.cobrador,
+        telefonos: socio.telefonos.map((t) => ({ value: t })),
+        correos: socio.correos.map((c) => ({ value: c })),
+      })
+      setIsVerificado(true)
+    },
+    [reset]
+  )
+
+  React.useEffect(() => {
+    if (!isEdit || !editId) return
+    let cancelled = false
+    sociosService
+      .get(editId)
+      .then((data) => {
+        if (cancelled) return
+        populate(data)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        console.error("Error al cargar el socio:", err)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [isEdit, editId, sociosService, populate])
 
   const selectedObraSocial = useWatch({ control, name: "obraSocial" })
   const planValue = useWatch({ control, name: "plan" })
@@ -185,7 +244,7 @@ export default function NuevoSocioPage() {
     <div className="min-h-screen bg-surface-container-lowest text-on-surface p-4 md:p-8 flex justify-center items-start">
       <Card variant="outlined" className="w-full max-w-6xl p-6 md:p-10 bg-background" style={{ "--input-bg": "var(--color-surface-container-lowest)" } as React.CSSProperties}>
         <h1 className="text-2xl mb-8 font-semibold tracking-tight">
-          Nuevo socio
+          {isEdit ? "Editar socio" : "Nuevo socio"}
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-12 gap-x-6 gap-y-8">
@@ -236,14 +295,16 @@ export default function NuevoSocioPage() {
                 />
               </>
             ) : (
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full h-14"
-                onClick={handleCambiarDocumento}
-              >
-                Buscar otro
-              </Button>
+              !isEdit && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-14"
+                  onClick={handleCambiarDocumento}
+                >
+                  Buscar otro
+                </Button>
+              )
             )}
           </div>
 
@@ -252,7 +313,7 @@ export default function NuevoSocioPage() {
               <div className="col-span-12 md:col-span-2">
                 <Input
                   label="Id socio"
-                  value="1024"
+                  value={editId || "1024"}
                   readOnly
                   variant="outlined"
                 />
@@ -386,7 +447,7 @@ export default function NuevoSocioPage() {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {mockObrasSociales.map((os) => (
+                            {MOCK_OBRAS_SOCIALES.map((os) => (
                               <TableRow key={os.id}>
                                 <TableCell>{os.id}</TableCell>
                                 <TableCell>{os.nombre}</TableCell>
@@ -546,7 +607,11 @@ export default function NuevoSocioPage() {
                   type="button"
                   variant="outline"
                   className="w-full md:w-40"
-                  onClick={handleCambiarDocumento}
+                  onClick={
+                    isEdit
+                      ? () => router.push("/dashboard/socios")
+                      : handleCambiarDocumento
+                  }
                 >
                   Cancelar
                 </Button>
@@ -565,5 +630,20 @@ export default function NuevoSocioPage() {
         </form>
       </Card>
     </div>
+  )
+}
+
+export default function NuevoSocioPage() {
+  // useSearchParams requiere Suspense en el árbol. Un fallback nulo dejaría
+  // la pantalla en blanco durante la hidratación; mostramos al menos el
+  // contenedor para evitar el parpadeo.
+  return (
+    <React.Suspense
+      fallback={
+        <div className="min-h-screen bg-surface-container-lowest p-4 md:p-8" />
+      }
+    >
+      <NuevoSocioForm />
+    </React.Suspense>
   )
 }

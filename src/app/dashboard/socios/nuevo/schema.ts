@@ -20,3 +20,20 @@ export const socioSchema = z.object({
 });
 
 export type SocioFormData = z.infer<typeof socioSchema>;
+
+/**
+ * Un teléfono/correo del form puede llegar como string plano o como
+ * { value } (según venga de useFieldArray). Este tipo describe ambas formas.
+ */
+export type ContactField = string | { value: string };
+
+/**
+ * Normaliza un array de contactos (teléfonos o correos) a strings planos,
+ * descartando vacíos. Único punto de verdad para esta conversión: la usan
+ * el alta/edición (onSubmit) y el dev-store.
+ */
+export function normalizeContacts(values: ContactField[] | undefined): string[] {
+  return (values ?? [])
+    .map((v) => (typeof v === "string" ? v : v.value))
+    .filter(Boolean);
+}

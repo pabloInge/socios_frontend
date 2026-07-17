@@ -3,8 +3,9 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Plus } from "lucide-react"
+import { Plus, Edit, Trash2 } from "lucide-react"
 
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Chip } from "@/components/ui/chip"
@@ -13,31 +14,45 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton"
 import { fabVariants } from "@/components/ui/fab"
 import { cn } from "@/lib/utils"
-
-import { obtenerSocios, type SocioListItem } from "./actions"
+import { useSociosService, type SocioListItem } from "@/lib/socios/service-context"
 
 export default function SociosPage() {
   const router = useRouter()
+  const sociosService = useSociosService()
   const [socios, setSocios] = React.useState<SocioListItem[]>([])
   const [loading, setLoading] = React.useState(true)
   const [search, setSearch] = React.useState("")
   const [filterEstado, setFilterEstado] = React.useState("Todos")
-  const [filterPlan, setFilterPlan] = React.useState("Todos")
-  const [filterObraSocial, setFilterObraSocial] = React.useState("Todos")
 
   React.useEffect(() => {
-    obtenerSocios().then((data) => {
-      setSocios(data)
-      setLoading(false)
-    })
-  }, [])
+    let cancelled = false
+    sociosService
+      .list()
+      .then((data) => {
+        if (cancelled) return
+        setSocios(data)
+        setLoading(false)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [sociosService])
 
-  const uniqueObrasSociales = React.useMemo(() => {
-    const obras = socios
-      .map((s) => s.obraSocial)
-      .filter((v): v is string => v !== null)
-    return [...new Set(obras)]
-  }, [socios])
+  const handleEliminar = async (id: string) => {
+    const confirmado =
+      typeof window === "undefined" || window.confirm("¿Eliminar este socio?")
+    if (!confirmado) return
+    try {
+      const ok = await sociosService.remove(id)
+      if (ok) setSocios((prev) => prev.filter((s) => s.id !== id))
+    } catch (err) {
+      console.error("Error al eliminar socio:", err)
+    }
+  }
 
   const filteredSocios = React.useMemo(() => {
     return socios.filter((socio) => {
@@ -50,29 +65,17 @@ export default function SociosPage() {
 
       const matchesEstado =
         filterEstado === "Todos" || socio.estado === filterEstado
-      const matchesPlan = filterPlan === "Todos" || socio.plan === filterPlan
-      const matchesObraSocial =
-        filterObraSocial === "Todos" || socio.obraSocial === filterObraSocial
 
-      return matchesSearch && matchesEstado && matchesPlan && matchesObraSocial
+      return matchesSearch && matchesEstado
     })
-  }, [socios, search, filterEstado, filterPlan, filterObraSocial])
+  }, [socios, search, filterEstado])
 
-  const hasActiveFilters =
-    filterEstado !== "Todos" ||
-    filterPlan !== "Todos" ||
-    filterObraSocial !== "Todos"
+  const hasActiveFilters = filterEstado !== "Todos"
 
-  const activeFilterCount = [
-    filterEstado !== "Todos",
-    filterPlan !== "Todos",
-    filterObraSocial !== "Todos",
-  ].filter(Boolean).length
+  const activeFilterCount = hasActiveFilters ? 1 : 0
 
   const clearPanelFilters = () => {
     setFilterEstado("Todos")
-    setFilterPlan("Todos")
-    setFilterObraSocial("Todos")
   }
 
   return (
@@ -108,33 +111,6 @@ export default function SociosPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="w-40">
-              <Select value={filterPlan} onValueChange={setFilterPlan}>
-                <SelectTrigger label="Plan" variant="outlined">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Todos">Todos</SelectItem>
-                  <SelectItem value="A">Plan A</SelectItem>
-                  <SelectItem value="B">Plan B</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-48">
-              <Select value={filterObraSocial} onValueChange={setFilterObraSocial}>
-                <SelectTrigger label="Obra Social" variant="outlined">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Todos">Todas</SelectItem>
-                  {uniqueObrasSociales.map((os) => (
-                    <SelectItem key={os} value={os}>
-                      {os}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </div>
         </FilterToggleContent>
       </FilterToggle>
@@ -149,19 +125,6 @@ export default function SociosPage() {
               Estado: {filterEstado}
             </Chip>
           )}
-          {filterPlan !== "Todos" && (
-            <Chip variant="input" onRemove={() => setFilterPlan("Todos")}>
-              Plan: {filterPlan}
-            </Chip>
-          )}
-          {filterObraSocial !== "Todos" && (
-            <Chip
-              variant="input"
-              onRemove={() => setFilterObraSocial("Todos")}
-            >
-              Obra Social: {filterObraSocial}
-            </Chip>
-          )}
         </div>
       )}
 
@@ -172,16 +135,15 @@ export default function SociosPage() {
               <TableHead>Nombre</TableHead>
               <TableHead>Apellido</TableHead>
               <TableHead>Documento</TableHead>
-              <TableHead>Obra Social</TableHead>
-              <TableHead>Plan</TableHead>
               <TableHead>Estado</TableHead>
+              <TableHead className="text-center">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
-                  {Array.from({ length: 6 }).map((_, j) => (
+                  {Array.from({ length: 5 }).map((_, j) => (
                     <TableCell key={j}>
                       <Skeleton className="h-4 w-full max-w-[120px]" />
                     </TableCell>
@@ -191,7 +153,7 @@ export default function SociosPage() {
             ) : filteredSocios.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={5}
                   className="text-center py-8 text-on-surface-variant"
                 >
                   No se encontraron socios
@@ -219,8 +181,6 @@ export default function SociosPage() {
                   <TableCell>
                     {socio.tipoDocumento} {socio.nroDocumento}
                   </TableCell>
-                  <TableCell>{socio.obraSocial || "\u2014"}</TableCell>
-                  <TableCell>{socio.plan}</TableCell>
                   <TableCell>
                     <span
                       className={cn(
@@ -232,6 +192,29 @@ export default function SociosPage() {
                     >
                       {socio.estado}
                     </span>
+                  </TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        title="Editar"
+                        onClick={() =>
+                          router.push(`/dashboard/socios/nuevo?edit=${socio.id}`)
+                        }
+                      >
+                        <Edit />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        title="Eliminar"
+                        className="text-destructive"
+                        onClick={() => handleEliminar(socio.id)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

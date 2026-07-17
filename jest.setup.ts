@@ -1,6 +1,10 @@
 import '@testing-library/jest-dom';
 
+// Entorno por defecto en tests = develop (mocks). Se setean ambas fuentes:
+//   - ENV              -> decide el comportamiento del SERVIDOR (isMockMode).
+//   - NEXT_PUBLIC_ENV  -> lo que vería el cliente (getClientEnv).
 process.env.ENV = 'develop';
+process.env.NEXT_PUBLIC_ENV = 'develop';
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:5000/api';
 
 global.fetch = jest.fn(() =>

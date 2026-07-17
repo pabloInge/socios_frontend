@@ -7,22 +7,34 @@ import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SocioDetalleCard } from "@/components/ui/socio-detalle"
-import { obtenerSocioDetalle, type SocioDetalle } from "../actions"
+import { useSociosService, type SocioDetalle } from "@/lib/socios/service-context"
 
 export default function SocioDetallePage() {
   const router = useRouter()
   const params = useParams()
   const id = params.id as string
+  const sociosService = useSociosService()
 
   const [socio, setSocio] = React.useState<SocioDetalle | null>(null)
   const [loading, setLoading] = React.useState(true)
 
   React.useEffect(() => {
-    obtenerSocioDetalle(id).then((data) => {
-      setSocio(data)
-      setLoading(false)
-    })
-  }, [id])
+    let cancelled = false
+    sociosService
+      .get(id)
+      .then((data) => {
+        if (cancelled) return
+        setSocio(data)
+        setLoading(false)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [id, sociosService])
 
   return (
     <div className="relative h-full p-4 md:p-8">
