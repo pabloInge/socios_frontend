@@ -5,7 +5,6 @@ import { fetchAPI } from "@/lib/apiClient";
 import { SocioFormData } from "./schema";
 
 export async function buscarSocioPorDocumento(
-  tipoDocumento: string,
   nroDocumento: string
 ): Promise<SocioFormData | null> {
   const cookieStore = await cookies();
@@ -14,7 +13,7 @@ export async function buscarSocioPorDocumento(
   if (!token) return null;
 
   try {
-    const query = `/socios?tipoDocumento=${encodeURIComponent(tipoDocumento)}&nroDocumento=${encodeURIComponent(nroDocumento)}`;
+    const query = `/socios?nroDocumento=${encodeURIComponent(nroDocumento)}`;
     return await fetchAPI<SocioFormData>(query, token);
   } catch {
     return null;

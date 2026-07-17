@@ -27,7 +27,6 @@ import * as nuevoActions from '../../app/dashboard/socios/nuevo/actions';
 const socioData = {
   nombre: 'Test',
   apellido: 'Apellido',
-  tipoDocumento: 'DNI',
   nroDocumento: '1',
   fechaNacimiento: '1990-01-01',
   ciudad: 'Rosario',
@@ -71,14 +70,14 @@ describe('SociosService (DI por flag mockMode)', () => {
     it('list/get/findByDocumento/create/update/remove llaman al dev-store', async () => {
       await svc.list();
       await svc.get('1');
-      await svc.findByDocumento('DNI', '12345678');
+      await svc.findByDocumento('12345678');
       await svc.create(socioData);
       await svc.update('1', socioData);
       await svc.remove('1');
 
       expect(devStore.devGetSocios).toHaveBeenCalled();
       expect(devStore.devGetSocioDetalle).toHaveBeenCalledWith('1');
-      expect(devStore.devFindSocioByDocumento).toHaveBeenCalledWith('DNI', '12345678');
+      expect(devStore.devFindSocioByDocumento).toHaveBeenCalledWith('12345678');
       expect(devStore.devAddSocio).toHaveBeenCalledWith(socioData);
       expect(devStore.devUpdateSocio).toHaveBeenCalledWith('1', socioData);
       expect(devStore.devRemoveSocio).toHaveBeenCalledWith('1');
@@ -109,11 +108,11 @@ describe('SociosService (DI por flag mockMode)', () => {
     });
 
     it('findByDocumento/create/update llaman a las acciones de nuevo', async () => {
-      await svc.findByDocumento('DNI', '12345678');
+      await svc.findByDocumento('12345678');
       await svc.create(socioData);
       await svc.update('1', socioData);
 
-      expect(nuevoActions.buscarSocioPorDocumento).toHaveBeenCalledWith('DNI', '12345678');
+      expect(nuevoActions.buscarSocioPorDocumento).toHaveBeenCalledWith('12345678');
       expect(nuevoActions.guardarSocio).toHaveBeenCalledWith(socioData);
       expect(nuevoActions.actualizarSocio).toHaveBeenCalledWith('1', socioData);
     });

@@ -38,7 +38,7 @@ export function SocioDetalleCard({ socio }: { socio: SocioDetalle }) {
                 {socio.apellido}, {socio.nombre}
               </CardTitle>
               <p className="text-base text-on-surface-variant">
-                {socio.tipoDocumento} {socio.nroDocumento}
+                DNI {socio.nroDocumento}
               </p>
             </div>
           </div>

@@ -11,7 +11,6 @@ import { fetchAPI } from '../../../../lib/apiClient';
 import { cookies } from 'next/headers';
 
 const datosSocio = {
-  tipoDocumento: 'DNI' as const,
   nroDocumento: '12345678',
   nombre: 'Juan',
   apellido: 'Pérez',
@@ -36,11 +35,11 @@ describe('Acciones del Servidor para Nuevo Socio (API real)', () => {
       });
       (fetchAPI as jest.Mock).mockResolvedValue(datosSocio);
 
-      const socio = await buscarSocioPorDocumento('DNI', '12345678');
+      const socio = await buscarSocioPorDocumento('12345678');
 
       expect(socio).toEqual(datosSocio);
       expect(fetchAPI).toHaveBeenCalledWith(
-        expect.stringContaining('/socios?tipoDocumento=DNI&nroDocumento=12345678'),
+        expect.stringContaining('/socios?nroDocumento=12345678'),
         'tok'
       );
     });
@@ -48,7 +47,7 @@ describe('Acciones del Servidor para Nuevo Socio (API real)', () => {
     it('sin token debe devolver null sin llamar a la API', async () => {
       (cookies as jest.Mock).mockResolvedValue({ get: () => undefined });
 
-      const socio = await buscarSocioPorDocumento('DNI', '12345678');
+      const socio = await buscarSocioPorDocumento('12345678');
 
       expect(socio).toBeNull();
       expect(fetchAPI).not.toHaveBeenCalled();
@@ -60,7 +59,7 @@ describe('Acciones del Servidor para Nuevo Socio (API real)', () => {
       });
       (fetchAPI as jest.Mock).mockRejectedValue(new Error('404'));
 
-      await expect(buscarSocioPorDocumento('DNI', '99999999')).resolves.toBeNull();
+      await expect(buscarSocioPorDocumento('99999999')).resolves.toBeNull();
     });
   });
 

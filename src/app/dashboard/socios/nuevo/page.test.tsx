@@ -33,8 +33,7 @@ jest.mock('../../../../components/ui/select', () => ({
         data-testid={`mock-select-${triggerLabel}`}
         onClick={() => {
           if (onValueChange) {
-            if (/tipo/i.test(triggerLabel) || /documento/i.test(triggerLabel)) onValueChange('DNI');
-            else if (/sepelio/i.test(triggerLabel) || /cobrador/i.test(triggerLabel)) onValueChange('SI');
+            if (/sepelio/i.test(triggerLabel) || /cobrador/i.test(triggerLabel)) onValueChange('SI');
             else onValueChange('A');
           }
         }}
@@ -97,7 +96,7 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
     fireEvent.click(screen.getByRole('button', { name: /^buscar$/i }));
 
     await waitFor(() => {
-      expect(findByDocumento).toHaveBeenCalledWith('DNI', '12345678');
+      expect(findByDocumento).toHaveBeenCalledWith('12345678');
       expect(screen.getByLabelText(/^nombre$/i)).toBeInTheDocument();
     });
 
@@ -123,7 +122,6 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
 
     await waitFor(() => {
       expect(create).toHaveBeenCalledWith(expect.objectContaining({
-        tipoDocumento: 'DNI',
         nroDocumento: '12345678',
         nombre: 'Juan',
         apellido: 'Pérez',
@@ -135,7 +133,6 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
 
   it('debe autocompletar el formulario si encuentra el socio con el documento ingresado', async () => {
     const findByDocumento = jest.fn().mockResolvedValue({
-      tipoDocumento: 'DNI',
       nroDocumento: '12345678',
       nombre: 'Carlos',
       apellido: 'González',
@@ -168,7 +165,6 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
 
     await waitFor(() => {
       expect(create).toHaveBeenCalledWith(expect.objectContaining({
-        tipoDocumento: 'DNI',
         nroDocumento: '12345678',
         nombre: 'Carlos',
         apellido: 'González',
@@ -178,7 +174,6 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
 
   it('debe colapsar el formulario y limpiar campos al presionar Buscar otro', async () => {
     const findByDocumento = jest.fn().mockResolvedValue({
-      tipoDocumento: 'DNI',
       nroDocumento: '12345678',
       nombre: 'Carlos',
       apellido: 'González',
@@ -244,7 +239,6 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
       id: '1',
       nombre: 'Juan',
       apellido: 'Pérez',
-      tipoDocumento: 'DNI',
       nroDocumento: '12345678',
       fechaNacimiento: '1990-01-01',
       ciudad: 'Buenos Aires',
@@ -275,7 +269,6 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
       id: '7',
       nombre: 'Juan',
       apellido: 'Pérez',
-      tipoDocumento: 'DNI',
       nroDocumento: '12345678',
       fechaNacimiento: '1990-01-01',
       ciudad: 'Buenos Aires',

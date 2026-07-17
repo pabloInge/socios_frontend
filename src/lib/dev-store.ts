@@ -7,7 +7,6 @@ function toListItem(d: SocioDetalle): SocioListItem {
     id: d.id,
     nombre: d.nombre,
     apellido: d.apellido,
-    tipoDocumento: d.tipoDocumento,
     nroDocumento: d.nroDocumento,
     obraSocial: d.obraSocial ?? null,
     plan: d.plan,
@@ -50,7 +49,6 @@ export function devAddSocio(data: SocioFormData): string {
     id,
     nombre: data.nombre,
     apellido: data.apellido,
-    tipoDocumento: data.tipoDocumento,
     nroDocumento: data.nroDocumento,
     fechaNacimiento: data.fechaNacimiento,
     ciudad: data.ciudad,
@@ -78,7 +76,6 @@ export function devUpdateSocio(id: string, data: SocioFormData): boolean {
     ...prev,
     nombre: data.nombre,
     apellido: data.apellido,
-    tipoDocumento: data.tipoDocumento,
     nroDocumento: data.nroDocumento,
     fechaNacimiento: data.fechaNacimiento,
     ciudad: data.ciudad,
@@ -100,11 +97,10 @@ export function devUpdateSocio(id: string, data: SocioFormData): boolean {
 }
 
 export function devFindSocioByDocumento(
-  tipoDocumento: string,
   nroDocumento: string
 ): SocioDetalle | null {
   const found = state.detalle.find(
-    (s) => s.tipoDocumento === tipoDocumento && s.nroDocumento === nroDocumento
+    (s) => s.nroDocumento === nroDocumento
   )
   return found
     ? { ...found, telefonos: [...found.telefonos], correos: [...found.correos] }

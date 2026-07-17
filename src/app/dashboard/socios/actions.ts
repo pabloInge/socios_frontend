@@ -7,7 +7,6 @@ export interface SocioListItem {
   id: string;
   nombre: string;
   apellido: string;
-  tipoDocumento: string;
   nroDocumento: string;
   obraSocial: string | null;
   plan: string;
@@ -18,7 +17,6 @@ export interface SocioDetalle {
   id: string;
   nombre: string;
   apellido: string;
-  tipoDocumento: string;
   nroDocumento: string;
   fechaNacimiento: string;
   ciudad: string;

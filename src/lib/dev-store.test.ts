@@ -12,7 +12,6 @@ import type { SocioFormData, ContactField } from '@/app/dashboard/socios/nuevo/s
 const baseSocio: SocioFormData = {
   nombre: 'Test',
   apellido: 'Apellido',
-  tipoDocumento: 'DNI',
   nroDocumento: '99999999',
   fechaNacimiento: '1990-01-01',
   ciudad: 'Rosario',
@@ -53,18 +52,14 @@ describe('dev-store', () => {
   });
 
   describe('devFindSocioByDocumento', () => {
-    it('debe encontrar un socio por tipo + numero de documento', () => {
-      const detalle = devFindSocioByDocumento('DNI', '12345678');
+    it('debe encontrar un socio por numero de documento', () => {
+      const detalle = devFindSocioByDocumento('12345678');
       expect(detalle).not.toBeNull();
       expect(detalle!.nombre).toBe('Juan');
     });
 
     it('debe devolver null si no existe', () => {
-      expect(devFindSocioByDocumento('DNI', '00000000')).toBeNull();
-    });
-
-    it('debe respetar el tipo de documento', () => {
-      expect(devFindSocioByDocumento('CUIT', '12345678')).toBeNull();
+      expect(devFindSocioByDocumento('00000000')).toBeNull();
     });
   });
 

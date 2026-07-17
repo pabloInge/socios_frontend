@@ -43,7 +43,6 @@ const socio42 = {
   id: '42',
   nombre: 'Juan',
   apellido: 'Pérez',
-  tipoDocumento: 'DNI',
   nroDocumento: '12345678',
   obraSocial: 'PAMI',
   plan: 'A',
@@ -92,7 +91,7 @@ describe('Módulo de Socios - Lista', () => {
     await waitFor(() => {
       expect(screen.getByText('Juan')).toBeInTheDocument();
       expect(screen.getByText('Pérez')).toBeInTheDocument();
-      expect(screen.getByText('DNI 12345678')).toBeInTheDocument();
+      expect(screen.getByText('12345678')).toBeInTheDocument();
     });
   });
 

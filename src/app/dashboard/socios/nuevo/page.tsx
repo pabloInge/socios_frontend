@@ -48,7 +48,6 @@ function NuevoSocioForm() {
   } = useForm<SocioFormData>({
     resolver: zodResolver(socioSchema) as Resolver<SocioFormData>,
     defaultValues: {
-      tipoDocumento: "DNI",
       nroDocumento: "",
       fechaAlta: new Date().toISOString().split("T")[0],
       telefonos: [],
@@ -74,7 +73,6 @@ function NuevoSocioForm() {
   const [telefonoError, setTelefonoError] = React.useState("")
   const [correoError, setCorreoError] = React.useState("")
 
-  const tipoDocumentoValue = useWatch({ control, name: "tipoDocumento" })
   const nroDocumentoValue = useWatch({ control, name: "nroDocumento" })
 
   const onSubmit = async (data: SocioFormData) => {
@@ -123,31 +121,29 @@ function NuevoSocioForm() {
   }
 
   const handleVerificarDocumento = async () => {
-    const isValid = await trigger(["tipoDocumento", "nroDocumento"])
+    const isValid = await trigger("nroDocumento")
     if (!isValid) return
 
     setLoadingSearch(true)
 
     try {
-      const socio = await sociosService.findByDocumento(tipoDocumentoValue || "DNI", nroDocumentoValue)
+      const socio = await sociosService.findByDocumento(nroDocumentoValue)
       if (socio) {
-        const formattedTelefonos = (socio.telefonos || []).map(t => 
+        const formattedTelefonos = (socio.telefonos || []).map(t =>
           typeof t === "string" ? { value: t } : t
         )
-        const formattedCorreos = (socio.correos || []).map(c => 
+        const formattedCorreos = (socio.correos || []).map(c =>
           typeof c === "string" ? { value: c } : c
         )
 
         reset({
           ...socio,
-          tipoDocumento: socio.tipoDocumento || tipoDocumentoValue || "DNI",
           nroDocumento: socio.nroDocumento || nroDocumentoValue,
           telefonos: formattedTelefonos,
           correos: formattedCorreos,
         })
       } else {
         reset({
-          tipoDocumento: tipoDocumentoValue || "DNI",
           nroDocumento: nroDocumentoValue,
           nombre: "",
           apellido: "",
@@ -180,7 +176,6 @@ function NuevoSocioForm() {
   const handleCambiarDocumento = () => {
     setIsVerificado(false)
     reset({
-      tipoDocumento: "DNI",
       nroDocumento: "",
       fechaAlta: new Date().toISOString().split("T")[0],
       telefonos: [],
@@ -195,7 +190,6 @@ function NuevoSocioForm() {
     (socio: SocioDetalle | null) => {
       if (!socio) return
       reset({
-        tipoDocumento: socio.tipoDocumento as "DNI" | "CUIT",
         nroDocumento: socio.nroDocumento,
         nombre: socio.nombre,
         apellido: socio.apellido,
@@ -248,24 +242,7 @@ function NuevoSocioForm() {
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-12 gap-x-6 gap-y-8">
-          <div className="col-span-12 md:col-span-2">
-            <Select
-              value={tipoDocumentoValue || "DNI"}
-              onValueChange={(val) => setValue("tipoDocumento", val as "DNI" | "CUIT", { shouldValidate: true })}
-              disabled={isVerificado}
-            >
-              <SelectTrigger label="Tipo" variant="outlined" error={!!errors.tipoDocumento} disabled={isVerificado}>
-                <SelectValue placeholder=" " />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="DNI">DNI</SelectItem>
-                <SelectItem value="CUIT">CUIT</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.tipoDocumento && <p className="text-xs text-destructive mt-1 px-4">{errors.tipoDocumento.message}</p>}
-          </div>
-
-          <div className="col-span-12 md:col-span-8">
+          <div className="col-span-12 md:col-span-10">
             <Input
               label="Documento"
               variant="outlined"

@@ -6,7 +6,6 @@ const mockSocio: SocioDetalle = {
   id: '1',
   nombre: 'Juan',
   apellido: 'Pérez',
-  tipoDocumento: 'DNI',
   nroDocumento: '12345678',
   fechaNacimiento: '1990-01-01',
   ciudad: 'Buenos Aires',

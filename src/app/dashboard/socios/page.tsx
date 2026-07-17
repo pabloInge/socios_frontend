@@ -179,7 +179,7 @@ export default function SociosPage() {
                   <TableCell>{socio.nombre}</TableCell>
                   <TableCell>{socio.apellido}</TableCell>
                   <TableCell>
-                    {socio.tipoDocumento} {socio.nroDocumento}
+                    {socio.nroDocumento}
                   </TableCell>
                   <TableCell>
                     <span
