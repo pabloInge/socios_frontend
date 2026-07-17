@@ -50,7 +50,6 @@ describe('DashboardLayout', () => {
 
     expect(screen.getByTestId('layout-shell')).toBeInTheDocument();
     expect(screen.getByTestId('consumer')).toHaveTextContent('has-service');
-    // El flag de mock se pasa serializable (no una instancia de clase)
     expect(isMockMode).toHaveBeenCalled();
   });
 });

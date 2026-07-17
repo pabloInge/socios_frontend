@@ -14,8 +14,6 @@ describe('useSociosService', () => {
   });
 
   it('dentro del provider expone un servicio construido a partir del flag', () => {
-    // mockMode se decide en el servidor; aca solo validamos que el provider
-    // construye y expone el servicio a partir del flag sin lanzar.
     const { unmount } = render(
       <SociosServiceProvider mockMode={false}>
         <Consumer />

@@ -31,8 +31,6 @@ describe('env (config central de entorno)', () => {
     it('NO se ve afectado por NEXT_PUBLIC_ENV (separacion cliente/servidor)', () => {
       delete process.env.ENV;
       process.env.NEXT_PUBLIC_ENV = 'develop';
-      // Aunque el cliente crea que es develop, el servidor no entra en mock
-      // si ENV no lo dice. Esto es lo que protege las decisiones de seguridad.
       expect(isMockMode()).toBe(false);
     });
   });

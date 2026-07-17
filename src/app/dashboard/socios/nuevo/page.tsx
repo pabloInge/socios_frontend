@@ -634,9 +634,6 @@ function NuevoSocioForm() {
 }
 
 export default function NuevoSocioPage() {
-  // useSearchParams requiere Suspense en el árbol. Un fallback nulo dejaría
-  // la pantalla en blanco durante la hidratación; mostramos al menos el
-  // contenedor para evitar el parpadeo.
   return (
     <React.Suspense
       fallback={

@@ -18,16 +18,6 @@ import type { SocioFormData } from "@/app/dashboard/socios/nuevo/schema"
 
 export type { SocioListItem, SocioDetalle, SocioFormData }
 
-/**
- * Abstracción del acceso a datos de socios.
- * La implementación concreta se elige según el entorno (DI por factory):
- *   - develop  -> MockSociosService (dev-store en cliente, se reinicia al recargar)
- *   - stg/prod -> ApiSociosService  (server actions -> API real)
- *
- * La decisión (mock vs API) se toma en el SERVIDOR (donde `ENV` está disponible)
- * y se le pasa al cliente como un booleano serializable; nunca se pasa una
- * instancia de clase de servidor a cliente (Next.js no lo permite).
- */
 export interface SociosService {
   list(): Promise<SocioListItem[]>
   get(id: string): Promise<SocioDetalle | null>

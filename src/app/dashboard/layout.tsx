@@ -15,8 +15,6 @@ export default async function DashboardLayout({
     redirect("/login")
   }
 
-  // La decisión Mock vs API se resuelve AQUI, en el servidor (donde ENV está
-  // disponible) y se pasa al provider como un booleano serializable.
   const mockMode = isMockMode()
 
   return (

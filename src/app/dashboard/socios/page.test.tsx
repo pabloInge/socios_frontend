@@ -136,7 +136,6 @@ describe('Módulo de Socios - Lista', () => {
     fireEvent.click(within(row).getByRole('button', { name: /eliminar/i }));
 
     await waitFor(() => expect(remove).toHaveBeenCalledWith('42'));
-    // El socio sigue visible porque la eliminacion no tuvo exito
     expect(screen.getByText('Juan')).toBeInTheDocument();
   });
 });

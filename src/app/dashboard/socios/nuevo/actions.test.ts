@@ -26,8 +26,6 @@ const datosSocio = {
 
 describe('Acciones del Servidor para Nuevo Socio (API real)', () => {
   beforeEach(() => {
-    // resetAllMocks (en lugar de clearAllMocks) para que mockRejectedValue
-    // de un test no se propague a los siguientes.
     jest.resetAllMocks();
   });
 
