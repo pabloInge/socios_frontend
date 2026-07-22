@@ -10,6 +10,7 @@ import { DataTable, type Column } from "@/components/ui/data-table"
 import { fabVariants } from "@/components/ui/fab"
 import { cn } from "@/lib/utils"
 import { useSociosService, type SocioListItem } from "@/lib/socios/service-context"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 const ESTADO_OPTIONS = [
   { value: "Activo", label: "Activo" },
@@ -21,6 +22,7 @@ export default function SociosPage() {
   const sociosService = useSociosService()
   const [socios, setSocios] = React.useState<SocioListItem[]>([])
   const [loading, setLoading] = React.useState(true)
+  const [socioToDelete, setSocioToDelete] = React.useState<SocioListItem | null>(null)
 
   React.useEffect(() => {
     let cancelled = false
@@ -40,15 +42,17 @@ export default function SociosPage() {
     }
   }, [sociosService])
 
-  const handleEliminar = async (id: string) => {
-    const confirmado =
-      typeof window === "undefined" || window.confirm("¿Eliminar este socio?")
-    if (!confirmado) return
+  const handleConfirmEliminar = async () => {
+    if (!socioToDelete) return
     try {
-      const ok = await sociosService.remove(id)
-      if (ok) setSocios((prev) => prev.filter((s) => s.id !== id))
+      const ok = await sociosService.remove(socioToDelete.id)
+      if (ok) {
+        setSocios((prev) => prev.filter((s) => s.id !== socioToDelete.id))
+      }
     } catch (err) {
       console.error("Error al eliminar socio:", err)
+    } finally {
+      setSocioToDelete(null)
     }
   }
 
@@ -141,7 +145,7 @@ export default function SociosPage() {
               title="Eliminar"
               aria-label="Eliminar"
               className="text-destructive"
-              onClick={() => handleEliminar(s.id)}
+              onClick={() => setSocioToDelete(s)}
             >
               <Trash2 />
             </Button>
@@ -159,6 +163,23 @@ export default function SociosPage() {
       >
         <Plus />
       </Link>
+
+      <ConfirmDialog
+        open={!!socioToDelete}
+        onOpenChange={(open) => {
+          if (!open) setSocioToDelete(null)
+        }}
+        variant="destructive"
+        title="¿Eliminar socio?"
+        description={
+          socioToDelete
+            ? `¿Está seguro de que desea eliminar a ${socioToDelete.nombre} ${socioToDelete.apellido}? Esta acción no se puede deshacer.`
+            : "Esta acción no se puede deshacer."
+        }
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmEliminar}
+      />
     </div>
   )
 }

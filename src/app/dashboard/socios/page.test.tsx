@@ -112,7 +112,7 @@ describe('Módulo de Socios - Lista', () => {
     expect(mockPush).toHaveBeenCalledWith('/dashboard/socios/nuevo?edit=42');
   });
 
-  it('el boton Eliminar llama al service.remove y quita el socio de la lista', async () => {
+  it('el boton Eliminar abre la ventana emergente y al confirmar llama al service.remove y quita el socio', async () => {
     const remove = jest.fn().mockResolvedValue(true);
     renderPage(makeFake({ list: jest.fn().mockResolvedValue([socio42]), remove }));
 
@@ -120,10 +120,37 @@ describe('Módulo de Socios - Lista', () => {
     const row = screen.getByText('Juan').closest('tr')!;
     fireEvent.click(within(row).getByRole('button', { name: /eliminar/i }));
 
+    expect(await screen.findByText('¿Eliminar socio?')).toBeInTheDocument();
+    expect(screen.getByText(/¿Está seguro de que desea eliminar a Juan Pérez?/i)).toBeInTheDocument();
+
+    const dialogConfirmBtn = within(screen.getByRole('dialog')).getByRole('button', { name: 'Eliminar' });
+    fireEvent.click(dialogConfirmBtn);
+
     await waitFor(() => {
       expect(remove).toHaveBeenCalledWith('42');
       expect(screen.queryByText('Juan')).not.toBeInTheDocument();
     });
+  });
+
+  it('no quita el socio si se cancela la confirmación en la ventana emergente', async () => {
+    const remove = jest.fn().mockResolvedValue(true);
+    renderPage(makeFake({ list: jest.fn().mockResolvedValue([socio42]), remove }));
+
+    await screen.findByText('Juan');
+    const row = screen.getByText('Juan').closest('tr')!;
+    fireEvent.click(within(row).getByRole('button', { name: /eliminar/i }));
+
+    expect(await screen.findByText('¿Eliminar socio?')).toBeInTheDocument();
+
+    const cancelBtn = within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancelar' });
+    fireEvent.click(cancelBtn);
+
+    await waitFor(() => {
+      expect(screen.queryByText('¿Eliminar socio?')).not.toBeInTheDocument();
+    });
+
+    expect(remove).not.toHaveBeenCalled();
+    expect(screen.getByText('Juan')).toBeInTheDocument();
   });
 
   it('no quita el socio de la lista si remove falla', async () => {
@@ -133,6 +160,11 @@ describe('Módulo de Socios - Lista', () => {
     await screen.findByText('Juan');
     const row = screen.getByText('Juan').closest('tr')!;
     fireEvent.click(within(row).getByRole('button', { name: /eliminar/i }));
+
+    expect(await screen.findByText('¿Eliminar socio?')).toBeInTheDocument();
+
+    const dialogConfirmBtn = within(screen.getByRole('dialog')).getByRole('button', { name: 'Eliminar' });
+    fireEvent.click(dialogConfirmBtn);
 
     await waitFor(() => expect(remove).toHaveBeenCalledWith('42'));
     expect(screen.getByText('Juan')).toBeInTheDocument();
