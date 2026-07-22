@@ -3,7 +3,6 @@ import { z } from "zod";
 export const socioSchema = z.object({
   nombre: z.string().min(2, "El nombre debe tener al menos 2 letras"),
   apellido: z.string().min(2, "El apellido debe tener al menos 2 letras"),
-  tipoDocumento: z.enum(["DNI", "CUIT"]),
   nroDocumento: z.string().regex(/^\d+$/, "El documento solo puede contener números").min(7, "El documento debe tener al menos 7 dígitos"),
   fechaNacimiento: z.string().min(1, "La fecha de nacimiento es obligatoria"),
   ciudad: z.string().min(1, "La ciudad es obligatoria"),
@@ -20,3 +19,11 @@ export const socioSchema = z.object({
 });
 
 export type SocioFormData = z.infer<typeof socioSchema>;
+
+export type ContactField = string | { value: string };
+
+export function normalizeContacts(values: ContactField[] | undefined): string[] {
+  return (values ?? [])
+    .map((v) => (typeof v === "string" ? v : v.value))
+    .filter(Boolean);
+}

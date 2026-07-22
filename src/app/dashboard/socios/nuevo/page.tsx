@@ -4,24 +4,43 @@ import * as React from "react"
 import { useForm, useFieldArray, useWatch, Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus, Search, Check, X } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Chip } from "@/components/ui/chip"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { DataTable, type Column } from "@/components/ui/data-table"
 import { Separator } from "@/components/ui/separator"
 import { Card } from "@/components/ui/card"
 import { Fab } from "@/components/ui/fab"
+import { useSociosService, type SocioDetalle } from "@/lib/socios/service-context"
 
-import { socioSchema, SocioFormData } from "./schema"
-import { guardarSocio, buscarSocioPorDocumento } from "./actions"
+import { socioSchema, SocioFormData, normalizeContacts } from "./schema"
 
-export default function NuevoSocioPage() {
+const MOCK_OBRAS_SOCIALES = [
+  { id: "1", nombre: "PAMI" },
+  { id: "2", nombre: "IAPOS" },
+  { id: "3", nombre: "OSDE" },
+  { id: "4", nombre: "Jerárquicos Salud" },
+]
+
+type ObraSocial = (typeof MOCK_OBRAS_SOCIALES)[number]
+
+const OBRAS_SOCIALES_COLUMNS: Column<ObraSocial>[] = [
+  { key: "id", header: "Id", accessor: (o) => o.id, searchable: true },
+  { key: "nombre", header: "Nombre", accessor: (o) => o.nombre, searchable: true },
+]
+
+function NuevoSocioForm() {
   const router = useRouter()
-  const [isVerificado, setIsVerificado] = React.useState(false)
+  const searchParams = useSearchParams()
+  const editId = searchParams.get("edit")
+  const isEdit = Boolean(editId)
+  const sociosService = useSociosService()
+
+  const [isVerificado, setIsVerificado] = React.useState(isEdit)
   const [loadingSearch, setLoadingSearch] = React.useState(false)
 
   const {
@@ -36,7 +55,6 @@ export default function NuevoSocioPage() {
   } = useForm<SocioFormData>({
     resolver: zodResolver(socioSchema) as Resolver<SocioFormData>,
     defaultValues: {
-      tipoDocumento: "DNI",
       nroDocumento: "",
       fechaAlta: new Date().toISOString().split("T")[0],
       telefonos: [],
@@ -62,20 +80,29 @@ export default function NuevoSocioPage() {
   const [telefonoError, setTelefonoError] = React.useState("")
   const [correoError, setCorreoError] = React.useState("")
 
-  const tipoDocumentoValue = useWatch({ control, name: "tipoDocumento" })
   const nroDocumentoValue = useWatch({ control, name: "nroDocumento" })
 
   const onSubmit = async (data: SocioFormData) => {
-    const formattedData = {
+    const formattedData: SocioFormData = {
       ...data,
-      telefonos: (data.telefonos as unknown as (string | { value: string })[])?.map((t) => 
-        typeof t === "string" ? t : t.value
-      ).filter(Boolean),
-      correos: (data.correos as unknown as (string | { value: string })[])?.map((c) => 
-        typeof c === "string" ? c : c.value
-      ).filter(Boolean),
+      telefonos: normalizeContacts(data.telefonos),
+      correos: normalizeContacts(data.correos),
     }
-    await guardarSocio(formattedData as unknown as SocioFormData)
+
+    try {
+      if (isEdit && editId) {
+        await sociosService.update(editId, formattedData)
+      } else {
+        await sociosService.create(formattedData)
+      }
+      router.push("/dashboard/socios")
+    } catch (err) {
+      console.error("Error al guardar el socio:", err)
+      setError("root", {
+        type: "manual",
+        message: "No se pudo guardar el socio. Intente nuevamente.",
+      })
+    }
   }
 
   const handleAddTelefono = () => {
@@ -101,31 +128,29 @@ export default function NuevoSocioPage() {
   }
 
   const handleVerificarDocumento = async () => {
-    const isValid = await trigger(["tipoDocumento", "nroDocumento"])
+    const isValid = await trigger("nroDocumento")
     if (!isValid) return
 
     setLoadingSearch(true)
 
     try {
-      const socio = await buscarSocioPorDocumento(tipoDocumentoValue || "DNI", nroDocumentoValue)
+      const socio = await sociosService.findByDocumento(nroDocumentoValue)
       if (socio) {
-        const formattedTelefonos = (socio.telefonos || []).map(t => 
+        const formattedTelefonos = (socio.telefonos || []).map(t =>
           typeof t === "string" ? { value: t } : t
         )
-        const formattedCorreos = (socio.correos || []).map(c => 
+        const formattedCorreos = (socio.correos || []).map(c =>
           typeof c === "string" ? { value: c } : c
         )
 
         reset({
           ...socio,
-          tipoDocumento: socio.tipoDocumento || tipoDocumentoValue || "DNI",
           nroDocumento: socio.nroDocumento || nroDocumentoValue,
           telefonos: formattedTelefonos,
           correos: formattedCorreos,
         })
       } else {
         reset({
-          tipoDocumento: tipoDocumentoValue || "DNI",
           nroDocumento: nroDocumentoValue,
           nombre: "",
           apellido: "",
@@ -158,7 +183,6 @@ export default function NuevoSocioPage() {
   const handleCambiarDocumento = () => {
     setIsVerificado(false)
     reset({
-      tipoDocumento: "DNI",
       nroDocumento: "",
       fechaAlta: new Date().toISOString().split("T")[0],
       telefonos: [],
@@ -169,12 +193,48 @@ export default function NuevoSocioPage() {
     })
   }
 
-  const mockObrasSociales = [
-    { id: "1", nombre: "PAMI" },
-    { id: "2", nombre: "IAPOS" },
-    { id: "3", nombre: "OSDE" },
-    { id: "4", nombre: "Jerárquicos Salud" },
-  ]
+  const populate = React.useCallback(
+    (socio: SocioDetalle | null) => {
+      if (!socio) return
+      reset({
+        nroDocumento: socio.nroDocumento,
+        nombre: socio.nombre,
+        apellido: socio.apellido,
+        fechaNacimiento: socio.fechaNacimiento,
+        ciudad: socio.ciudad,
+        calle: socio.calle,
+        altura: socio.altura,
+        fechaAlta: socio.fechaAlta,
+        fechaBaja: socio.fechaBaja,
+        obraSocial: socio.obraSocial,
+        plan: socio.plan,
+        sepelio: socio.sepelio ?? "NO",
+        cobrador: socio.cobrador,
+        telefonos: socio.telefonos.map((t) => ({ value: t })),
+        correos: socio.correos.map((c) => ({ value: c })),
+      })
+      setIsVerificado(true)
+    },
+    [reset]
+  )
+
+  React.useEffect(() => {
+    if (!isEdit || !editId) return
+    let cancelled = false
+    sociosService
+      .get(editId)
+      .then((data) => {
+        if (cancelled) return
+        populate(data)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        console.error("Error al cargar el socio:", err)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [isEdit, editId, sociosService, populate])
 
   const selectedObraSocial = useWatch({ control, name: "obraSocial" })
   const planValue = useWatch({ control, name: "plan" })
@@ -185,28 +245,11 @@ export default function NuevoSocioPage() {
     <div className="min-h-screen bg-surface-container-lowest text-on-surface p-4 md:p-8 flex justify-center items-start">
       <Card variant="outlined" className="w-full max-w-6xl p-6 md:p-10 bg-background" style={{ "--input-bg": "var(--color-surface-container-lowest)" } as React.CSSProperties}>
         <h1 className="text-2xl mb-8 font-semibold tracking-tight">
-          Nuevo socio
+          {isEdit ? "Editar socio" : "Nuevo socio"}
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-12 gap-x-6 gap-y-8">
-          <div className="col-span-12 md:col-span-2">
-            <Select
-              value={tipoDocumentoValue || "DNI"}
-              onValueChange={(val) => setValue("tipoDocumento", val as "DNI" | "CUIT", { shouldValidate: true })}
-              disabled={isVerificado}
-            >
-              <SelectTrigger label="Tipo" variant="outlined" error={!!errors.tipoDocumento} disabled={isVerificado}>
-                <SelectValue placeholder=" " />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="DNI">DNI</SelectItem>
-                <SelectItem value="CUIT">CUIT</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.tipoDocumento && <p className="text-xs text-destructive mt-1 px-4">{errors.tipoDocumento.message}</p>}
-          </div>
-
-          <div className="col-span-12 md:col-span-8">
+          <div className="col-span-12 md:col-span-10">
             <Input
               label="Documento"
               variant="outlined"
@@ -236,14 +279,16 @@ export default function NuevoSocioPage() {
                 />
               </>
             ) : (
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full h-14"
-                onClick={handleCambiarDocumento}
-              >
-                Buscar otro
-              </Button>
+              !isEdit && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-14"
+                  onClick={handleCambiarDocumento}
+                >
+                  Buscar otro
+                </Button>
+              )
             )}
           </div>
 
@@ -252,7 +297,7 @@ export default function NuevoSocioPage() {
               <div className="col-span-12 md:col-span-2">
                 <Input
                   label="Id socio"
-                  value="1024"
+                  value={editId || "1024"}
                   readOnly
                   variant="outlined"
                 />
@@ -375,36 +420,25 @@ export default function NuevoSocioPage() {
                       <DialogTitle>Buscar obra social</DialogTitle>
                     </DialogHeader>
                     <div className="py-4 space-y-4">
-                      <Input label="Nombre de la obra social" variant="outlined" />
-                      <div className="rounded-xl border border-outline-variant overflow-hidden">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Id</TableHead>
-                              <TableHead>Nombre</TableHead>
-                              <TableHead></TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {mockObrasSociales.map((os) => (
-                              <TableRow key={os.id}>
-                                <TableCell>{os.id}</TableCell>
-                                <TableCell>{os.nombre}</TableCell>
-                                <TableCell className="text-right">
-                                  <DialogClose asChild>
-                                    <Button
-                                      size="sm"
-                                      onClick={() => setValue("obraSocial", os.nombre)}
-                                    >
-                                      Elegir
-                                    </Button>
-                                  </DialogClose>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
+                      <DataTable<ObraSocial>
+                        storageKey="obras-sociales-selector"
+                        data={MOCK_OBRAS_SOCIALES}
+                        columns={OBRAS_SOCIALES_COLUMNS}
+                        getRowId={(o) => o.id}
+                        searchPlaceholder="Buscar obra social por id o nombre"
+                        emptyMessage="No se encontraron obras sociales"
+                        columnsLabel="Columnas"
+                        renderActions={(os) => (
+                          <DialogClose asChild>
+                            <Button
+                              size="sm"
+                              onClick={() => setValue("obraSocial", os.nombre)}
+                            >
+                              Elegir
+                            </Button>
+                          </DialogClose>
+                        )}
+                      />
                     </div>
                   </DialogContent>
                 </Dialog>
@@ -546,7 +580,11 @@ export default function NuevoSocioPage() {
                   type="button"
                   variant="outline"
                   className="w-full md:w-40"
-                  onClick={handleCambiarDocumento}
+                  onClick={
+                    isEdit
+                      ? () => router.push("/dashboard/socios")
+                      : handleCambiarDocumento
+                  }
                 >
                   Cancelar
                 </Button>
@@ -565,5 +603,17 @@ export default function NuevoSocioPage() {
         </form>
       </Card>
     </div>
+  )
+}
+
+export default function NuevoSocioPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="min-h-screen bg-surface-container-lowest p-4 md:p-8" />
+      }
+    >
+      <NuevoSocioForm />
+    </React.Suspense>
   )
 }

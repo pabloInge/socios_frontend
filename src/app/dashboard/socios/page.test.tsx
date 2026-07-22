@@ -1,16 +1,10 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within, fireEvent } from '@testing-library/react';
 import SociosPage from './page';
+import { SociosServiceProvider, type SociosService } from '@/lib/socios/service-context';
 
 const mockPush = jest.fn();
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
-}));
-
-const mockObtenerSocios = jest.fn();
-jest.mock('./actions', () => ({
-  obtenerSocios: () => mockObtenerSocios(),
+  useRouter: () => ({ push: mockPush }),
 }));
 
 interface MockSelectProps {
@@ -18,7 +12,6 @@ interface MockSelectProps {
   value?: string;
   onValueChange?: (v: string) => void;
 }
-
 interface MockSelectTriggerProps {
   children: React.ReactNode;
   label?: string;
@@ -32,9 +25,7 @@ jest.mock('../../../components/ui/select', () => ({
     return (
       <div
         data-testid={`mock-select-${triggerLabel}`}
-        onClick={() => {
-          if (onValueChange) onValueChange('Todos');
-        }}
+        onClick={() => onValueChange?.('Todos')}
       >
         {children}
       </div>
@@ -48,14 +39,43 @@ jest.mock('../../../components/ui/select', () => ({
   SelectItem: () => null,
 }));
 
+const socio42 = {
+  id: '42',
+  nombre: 'Juan',
+  apellido: 'Pérez',
+  nroDocumento: '12345678',
+  obraSocial: 'PAMI',
+  plan: 'A',
+  estado: 'Activo' as const,
+};
+
+function makeFake(overrides: Partial<SociosService> = {}): SociosService {
+  return {
+    list: jest.fn(),
+    get: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    remove: jest.fn(),
+    ...overrides,
+  } as SociosService;
+}
+
+function renderPage(service: SociosService) {
+  return render(
+    <SociosServiceProvider mockMode={false} service={service}>
+      <SociosPage />
+    </SociosServiceProvider>
+  );
+}
+
 describe('Módulo de Socios - Lista', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(window, 'confirm').mockReturnValue(true);
   });
 
   it('debe tener un botón FAB (+) que enlace a la vista de registro', () => {
-    mockObtenerSocios.mockResolvedValue([]);
-    render(<SociosPage />);
+    renderPage(makeFake({ list: jest.fn().mockResolvedValue([]) }));
 
     const fabLink = screen.getByRole('link', { name: /nuevo socio/i });
     expect(fabLink).toBeInTheDocument();
@@ -63,38 +83,58 @@ describe('Módulo de Socios - Lista', () => {
   });
 
   it('debe mostrar skeletons mientras carga y luego la tabla con socios', async () => {
-    mockObtenerSocios.mockResolvedValue([
-      {
-        id: '1',
-        nombre: 'Juan',
-        apellido: 'Pérez',
-        tipoDocumento: 'DNI',
-        nroDocumento: '12345678',
-        obraSocial: 'PAMI',
-        plan: 'A',
-        estado: 'Activo',
-      },
-    ]);
-
-    render(<SociosPage />);
+    const list = jest.fn().mockResolvedValue([socio42]);
+    renderPage(makeFake({ list }));
 
     expect(document.querySelectorAll('[data-slot="skeleton"]').length).toBeGreaterThan(0);
 
     await waitFor(() => {
       expect(screen.getByText('Juan')).toBeInTheDocument();
       expect(screen.getByText('Pérez')).toBeInTheDocument();
-      expect(screen.getByText('DNI 12345678')).toBeInTheDocument();
-      expect(screen.getByText('PAMI')).toBeInTheDocument();
+      expect(screen.getByText('12345678')).toBeInTheDocument();
     });
   });
 
   it('debe mostrar mensaje cuando no hay resultados', async () => {
-    mockObtenerSocios.mockResolvedValue([]);
-
-    render(<SociosPage />);
+    renderPage(makeFake({ list: jest.fn().mockResolvedValue([]) }));
 
     await waitFor(() => {
       expect(screen.getByText(/no se encontraron socios/i)).toBeInTheDocument();
     });
+  });
+
+  it('el boton Editar debe navegar a la pantalla de edicion con el id', async () => {
+    renderPage(makeFake({ list: jest.fn().mockResolvedValue([socio42]) }));
+
+    const editarBtn = await screen.findByRole('button', { name: /editar/i });
+    fireEvent.click(editarBtn);
+
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/socios/nuevo?edit=42');
+  });
+
+  it('el boton Eliminar llama al service.remove y quita el socio de la lista', async () => {
+    const remove = jest.fn().mockResolvedValue(true);
+    renderPage(makeFake({ list: jest.fn().mockResolvedValue([socio42]), remove }));
+
+    await screen.findByText('Juan');
+    const row = screen.getByText('Juan').closest('tr')!;
+    fireEvent.click(within(row).getByRole('button', { name: /eliminar/i }));
+
+    await waitFor(() => {
+      expect(remove).toHaveBeenCalledWith('42');
+      expect(screen.queryByText('Juan')).not.toBeInTheDocument();
+    });
+  });
+
+  it('no quita el socio de la lista si remove falla', async () => {
+    const remove = jest.fn().mockResolvedValue(false);
+    renderPage(makeFake({ list: jest.fn().mockResolvedValue([socio42]), remove }));
+
+    await screen.findByText('Juan');
+    const row = screen.getByText('Juan').closest('tr')!;
+    fireEvent.click(within(row).getByRole('button', { name: /eliminar/i }));
+
+    await waitFor(() => expect(remove).toHaveBeenCalledWith('42'));
+    expect(screen.getByText('Juan')).toBeInTheDocument();
   });
 });

@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 
 process.env.ENV = 'develop';
+process.env.NEXT_PUBLIC_ENV = 'develop';
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:5000/api';
 
 global.fetch = jest.fn(() =>
@@ -23,3 +24,13 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: jest.fn(),
   })),
 });
+
+if (!Element.prototype.hasPointerCapture) {
+  Element.prototype.hasPointerCapture = () => false;
+}
+if (!Element.prototype.releasePointerCapture) {
+  Element.prototype.releasePointerCapture = () => {};
+}
+if (!Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = () => {};
+}

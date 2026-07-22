@@ -140,17 +140,15 @@ export function DashboardLayoutClient({
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const matchingItem = navItems.find(item => 
-      (item.url && pathname === item.url) || 
+  const activeParentId = React.useMemo(() => {
+    const matchingItem = navItems.find(item =>
+      (item.url && pathname === item.url) ||
       (item.subItems && item.subItems.some(sub => pathname === sub.url))
     )
-    
-    if (matchingItem && matchingItem.subItems) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setExpandedItems(prev => ({ ...prev, [matchingItem.id]: true }))
-    }
+    return matchingItem && matchingItem.subItems ? matchingItem.id : null
   }, [pathname])
+
+  const isExpanded = (id: string) => expandedItems[id] || id === activeParentId
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -229,7 +227,7 @@ export function DashboardLayoutClient({
                       <ChevronDown
                         size={18}
                         className={`transition-transform duration-500 ${
-                          expandedItems[item.id] ? "rotate-180" : ""
+                          isExpanded(item.id) ? "rotate-180" : ""
                         }`}
                       />
                     )}
@@ -240,7 +238,7 @@ export function DashboardLayoutClient({
               {item.subItems && (
                 <div
                   className={`overflow-hidden transition-all duration-500 ${
-                    expandedItems[item.id] ? "max-h-64 mt-1 opacity-100" : "max-h-0 opacity-0"
+                    isExpanded(item.id) ? "max-h-64 mt-1 opacity-100" : "max-h-0 opacity-0"
                   }`}
                 >
                   <div
