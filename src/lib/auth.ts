@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { fetchAPI } from "./apiClient";
+import { isMockMode } from "./env";
 
 export interface Usuario {
   logueado: boolean;
@@ -16,7 +17,7 @@ interface MeResponse {
 }
 
 export async function obtenerSesion(): Promise<Usuario | null> {
-  if (process.env.ENV === "develop") {
+  if (isMockMode()) {
     return { logueado: true, nombre: "Juan Pérez", rol: "admin" };
   }
 

@@ -2,25 +2,37 @@
 
 import { cookies } from "next/headers";
 import { fetchAPI } from "@/lib/apiClient";
-import { MOCK_SOCIOS } from "@/lib/mocks";
 
 export interface SocioListItem {
   id: string;
   nombre: string;
   apellido: string;
-  tipoDocumento: string;
   nroDocumento: string;
   obraSocial: string | null;
   plan: string;
   estado: "Activo" | "Baja";
 }
 
-export async function obtenerSocios(): Promise<SocioListItem[]> {
-  if (process.env.ENV === "develop") {
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    return MOCK_SOCIOS;
-  }
+export interface SocioDetalle {
+  id: string;
+  nombre: string;
+  apellido: string;
+  nroDocumento: string;
+  fechaNacimiento: string;
+  ciudad: string;
+  calle: string;
+  altura: string;
+  fechaAlta: string;
+  fechaBaja?: string;
+  obraSocial?: string;
+  plan: string;
+  sepelio?: string;
+  cobrador: string;
+  telefonos: string[];
+  correos: string[];
+}
 
+export async function obtenerSocios(): Promise<SocioListItem[]> {
   const cookieStore = await cookies();
   const token = cookieStore.get("authToken")?.value;
 
@@ -32,5 +44,34 @@ export async function obtenerSocios(): Promise<SocioListItem[]> {
     return await fetchAPI<SocioListItem[]>("/socios", token);
   } catch {
     return [];
+  }
+}
+
+export async function obtenerSocioDetalle(id: string): Promise<SocioDetalle | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("authToken")?.value;
+
+  if (!token) {
+    return null;
+  }
+
+  try {
+    return await fetchAPI<SocioDetalle>(`/socios/${id}`, token);
+  } catch {
+    return null;
+  }
+}
+
+export async function eliminarSocio(id: string): Promise<boolean> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("authToken")?.value;
+
+  if (!token) return false;
+
+  try {
+    await fetchAPI(`/socios/${id}`, token, { method: "DELETE" });
+    return true;
+  } catch {
+    return false;
   }
 }

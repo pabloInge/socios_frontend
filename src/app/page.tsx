@@ -13,14 +13,60 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FilterToggle, FilterToggleTrigger, FilterToggleContent } from "@/components/ui/filter-toggle";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from "@/components/ui/table";
+import { DataTable, type Column } from "@/components/ui/data-table";
+
+type ShowcaseUser = {
+  id: string;
+  nombre: string;
+  categoria: string;
+  estado: string;
+};
+
+const SHOWCASE_USERS: ShowcaseUser[] = [
+  { id: "1", nombre: "Juan Pérez", categoria: "Administrador", estado: "Activo" },
+  { id: "2", nombre: "Ana García", categoria: "Socio Vitalicio", estado: "Al día" },
+];
+
+const SHOWCASE_USER_COLUMNS: Column<ShowcaseUser>[] = [
+  {
+    key: "nombre",
+    header: "Nombre completo",
+    accessor: (u) => u.nombre,
+    className: "font-medium text-foreground",
+    searchable: true,
+  },
+  {
+    key: "categoria",
+    header: "Categoría",
+    accessor: (u) => u.categoria,
+    className: "text-on-surface-variant",
+    searchable: true,
+    filterable: true,
+    filterAccessor: (u) => u.categoria,
+  },
+  {
+    key: "estado",
+    header: "Estado",
+    accessor: (u) => <Chip variant="assist" className="pointer-events-none">{u.estado}</Chip>,
+    filterable: true,
+    filterAccessor: (u) => u.estado,
+  },
+];
+
+type ShowcaseObraSocial = {
+  id: string;
+  nombre: string;
+};
+
+const SHOWCASE_OBRAS: ShowcaseObraSocial[] = [
+  { id: "001", nombre: "PAMI" },
+  { id: "002", nombre: "OSDE" },
+];
+
+const SHOWCASE_OBRA_COLUMNS: Column<ShowcaseObraSocial>[] = [
+  { key: "id", header: "Id", accessor: (o) => o.id, searchable: true },
+  { key: "nombre", header: "Nombre", accessor: (o) => o.nombre, searchable: true, filterable: true, filterAccessor: (o) => o.nombre },
+];
 
 function ShowcaseSection({ title, description, children }: {
   title: string;
@@ -276,48 +322,21 @@ export default function Home() {
             title="Tabla de Datos"
             description="Visualización de información estructurada con estilos M3 Flat, soporte para acciones inline y estados visuales."
           >
-            <div className="bg-surface-container-lowest rounded-[28px] border border-outline-variant overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nombre completo</TableHead>
-                    <TableHead>Categoría</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead className="text-center">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium text-foreground">Juan Pérez</TableCell>
-                    <TableCell className="text-on-surface-variant">Administrador</TableCell>
-                    <TableCell>
-                      <Chip variant="assist" className="pointer-events-none">Activo</Chip>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-2">
-                        <Button variant="ghost" size="icon-sm" title="Visualizar"><Eye /></Button>
-                        <Button variant="ghost" size="icon-sm" title="Editar"><Edit /></Button>
-                        <Button variant="ghost" size="icon-sm" title="Eliminar" className="text-destructive"><Trash2 /></Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-foreground">Ana García</TableCell>
-                    <TableCell className="text-on-surface-variant">Socio Vitalicio</TableCell>
-                    <TableCell>
-                      <Chip variant="assist" className="pointer-events-none">Al día</Chip>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-2">
-                        <Button variant="ghost" size="icon-sm" title="Visualizar"><Eye /></Button>
-                        <Button variant="ghost" size="icon-sm" title="Editar"><Edit /></Button>
-                        <Button variant="ghost" size="icon-sm" title="Eliminar" className="text-destructive"><Trash2 /></Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
+            <DataTable<ShowcaseUser>
+              storageKey="showcase-users"
+              data={SHOWCASE_USERS}
+              columns={SHOWCASE_USER_COLUMNS}
+              getRowId={(u) => u.id}
+              searchPlaceholder="Buscar por nombre o categoría"
+              emptyMessage="No hay registros"
+              renderActions={() => (
+                <div className="flex items-center justify-center gap-2">
+                  <Button variant="ghost" size="icon" title="Visualizar" aria-label="Visualizar"><Eye /></Button>
+                  <Button variant="ghost" size="icon" title="Editar" aria-label="Editar"><Edit /></Button>
+                  <Button variant="ghost" size="icon" title="Eliminar" aria-label="Eliminar" className="text-destructive"><Trash2 /></Button>
+                </div>
+              )}
+            />
           </ShowcaseSection>
 
           <ShowcaseSection
@@ -575,30 +594,15 @@ export default function Home() {
                     <DialogTitle>Buscar Obra Social</DialogTitle>
                   </DialogHeader>
                   <div className="py-4 space-y-4">
-                    <Input label="Nombre de la obra social" variant="outlined" />
-                    <div className="rounded-xl border border-outline-variant overflow-hidden">
-                       <Table>
-                         <TableHeader>
-                           <TableRow>
-                             <TableHead>Id</TableHead>
-                             <TableHead>Nombre</TableHead>
-                             <TableHead></TableHead>
-                           </TableRow>
-                         </TableHeader>
-                         <TableBody>
-                           <TableRow>
-                             <TableCell>001</TableCell>
-                             <TableCell>PAMI</TableCell>
-                             <TableCell className="text-right"><Button size="sm">Elegir</Button></TableCell>
-                           </TableRow>
-                           <TableRow>
-                             <TableCell>002</TableCell>
-                             <TableCell>OSDE</TableCell>
-                             <TableCell className="text-right"><Button size="sm">Elegir</Button></TableCell>
-                           </TableRow>
-                         </TableBody>
-                       </Table>
-                    </div>
+                    <DataTable<ShowcaseObraSocial>
+                      storageKey="showcase-obras"
+                      data={SHOWCASE_OBRAS}
+                      columns={SHOWCASE_OBRA_COLUMNS}
+                      getRowId={(o) => o.id}
+                      searchPlaceholder="Buscar obra social por id o nombre"
+                      emptyMessage="No se encontraron obras sociales"
+                      renderActions={() => <Button size="sm">Elegir</Button>}
+                    />
                   </div>
                   <DialogFooter>
                     <DialogClose asChild>
