@@ -5,11 +5,13 @@ import {
   devAddSocio,
   devUpdateSocio,
   devRemoveSocio,
+  devReactivateSocio,
 } from "@/lib/dev-store"
 import {
   obtenerSocios,
   obtenerSocioDetalle,
   eliminarSocio,
+  reactivarSocio,
   type SocioListItem,
   type SocioDetalle,
 } from "@/app/dashboard/socios/actions"
@@ -25,6 +27,7 @@ export interface SociosService {
   create(data: SocioFormData): Promise<void>
   update(id: string, data: SocioFormData): Promise<void>
   remove(id: string): Promise<boolean>
+  reactivate(id: string): Promise<boolean>
 }
 
 function detalleToFormData(d: SocioDetalle): SocioFormData {
@@ -67,6 +70,9 @@ class MockSociosService implements SociosService {
   async remove(id: string): Promise<boolean> {
     return devRemoveSocio(id)
   }
+  async reactivate(id: string): Promise<boolean> {
+    return devReactivateSocio(id)
+  }
 }
 
 class ApiSociosService implements SociosService {
@@ -87,6 +93,9 @@ class ApiSociosService implements SociosService {
   }
   async remove(id: string): Promise<boolean> {
     return eliminarSocio(id)
+  }
+  async reactivate(id: string): Promise<boolean> {
+    return reactivarSocio(id)
   }
 }
 

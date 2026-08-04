@@ -56,6 +56,7 @@ function makeFake(overrides: Partial<SociosService> = {}): SociosService {
     create: jest.fn(),
     update: jest.fn(),
     remove: jest.fn(),
+    reactivate: jest.fn(),
     ...overrides,
   } as SociosService;
 }
@@ -168,5 +169,43 @@ describe('Módulo de Socios - Lista', () => {
 
     await waitFor(() => expect(remove).toHaveBeenCalledWith('42'));
     expect(screen.getByText('Juan')).toBeInTheDocument();
+  });
+
+  it('un socio dado de baja muestra solo el boton Reactivar y no Editar/Eliminar', async () => {
+    const socioBaja = { ...socio42, estado: 'Baja' as const };
+    renderPage(makeFake({ list: jest.fn().mockResolvedValue([socioBaja]) }));
+
+    await screen.findByText('Juan');
+    const row = screen.getByText('Juan').closest('tr')!;
+
+    expect(within(row).getByRole('button', { name: /reactivar/i })).toBeInTheDocument();
+    expect(within(row).queryByRole('button', { name: /editar/i })).not.toBeInTheDocument();
+    expect(within(row).queryByRole('button', { name: /eliminar/i })).not.toBeInTheDocument();
+  });
+
+  it('un socio activo muestra Editar y Eliminar pero no Reactivar', async () => {
+    renderPage(makeFake({ list: jest.fn().mockResolvedValue([socio42]) }));
+
+    await screen.findByText('Juan');
+    const row = screen.getByText('Juan').closest('tr')!;
+
+    expect(within(row).getByRole('button', { name: /editar/i })).toBeInTheDocument();
+    expect(within(row).getByRole('button', { name: /eliminar/i })).toBeInTheDocument();
+    expect(within(row).queryByRole('button', { name: /reactivar/i })).not.toBeInTheDocument();
+  });
+
+  it('al hacer clic en Reactivar llama al service.reactivate y actualiza el estado a Activo', async () => {
+    const reactivate = jest.fn().mockResolvedValue(true);
+    const socioBaja = { ...socio42, estado: 'Baja' as const };
+    renderPage(makeFake({ list: jest.fn().mockResolvedValue([socioBaja]), reactivate }));
+
+    await screen.findByText('Juan');
+    const row = screen.getByText('Juan').closest('tr')!;
+    fireEvent.click(within(row).getByRole('button', { name: /reactivar/i }));
+
+    await waitFor(() => expect(reactivate).toHaveBeenCalledWith('42'));
+    expect(screen.getByText('Activo')).toBeInTheDocument();
+    expect(screen.queryByText('Baja')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /reactivar/i })).not.toBeInTheDocument();
   });
 });

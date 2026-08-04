@@ -75,3 +75,20 @@ export async function eliminarSocio(id: string): Promise<boolean> {
     return false;
   }
 }
+
+export async function reactivarSocio(id: string): Promise<boolean> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("authToken")?.value;
+
+  if (!token) return false;
+
+  try {
+    await fetchAPI(`/socios/${id}`, token, {
+      method: "PATCH",
+      body: JSON.stringify({ fechaBaja: null }),
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}

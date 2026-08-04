@@ -5,6 +5,7 @@ import {
   devAddSocio,
   devUpdateSocio,
   devRemoveSocio,
+  devReactivateSocio,
   _resetDevStoreForTests,
 } from './dev-store';
 import type { SocioFormData, ContactField } from '@/app/dashboard/socios/nuevo/schema';
@@ -133,6 +134,23 @@ describe('dev-store', () => {
       expect(devGetSocios().length).toBe(original + 2);
       _resetDevStoreForTests();
       expect(devGetSocios().length).toBe(original);
+    });
+  });
+
+  describe('devReactivateSocio', () => {
+    it('debe quitar la fecha de baja y marcar el socio como Activo', () => {
+      const id = devAddSocio({ ...baseSocio, fechaBaja: '2025-01-01' });
+      expect(devGetSocios().find((s) => s.id === id)!.estado).toBe('Baja');
+
+      const ok = devReactivateSocio(id);
+
+      expect(ok).toBe(true);
+      expect(devGetSocios().find((s) => s.id === id)!.estado).toBe('Activo');
+      expect(devGetSocioDetalle(id)!.fechaBaja).toBeUndefined();
+    });
+
+    it('debe devolver false si el socio no existe', () => {
+      expect(devReactivateSocio('inexistente')).toBe(false);
     });
   });
 });

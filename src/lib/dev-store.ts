@@ -113,3 +113,12 @@ export function devRemoveSocio(id: string): boolean {
   state.detalle = state.detalle.filter((s) => s.id !== id)
   return state.list.length < before
 }
+
+export function devReactivateSocio(id: string): boolean {
+  const detalle = state.detalle.find((s) => s.id === id)
+  if (!detalle) return false
+  const updated: SocioDetalle = { ...detalle, fechaBaja: undefined }
+  state.detalle = state.detalle.map((s) => (s.id === id ? updated : s))
+  state.list = state.list.map((s) => (s.id === id ? toListItem(updated) : s))
+  return true
+}
