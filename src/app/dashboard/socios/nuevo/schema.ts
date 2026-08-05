@@ -22,8 +22,12 @@ export type SocioFormData = z.infer<typeof socioSchema>;
 
 export type ContactField = string | { value: string };
 
+export function contactValue(field: ContactField): string {
+  return typeof field === "string" ? field : field.value;
+}
+
 export function normalizeContacts(values: ContactField[] | undefined): string[] {
   return (values ?? [])
-    .map((v) => (typeof v === "string" ? v : v.value))
+    .map(contactValue)
     .filter(Boolean);
 }

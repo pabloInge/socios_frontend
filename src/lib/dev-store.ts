@@ -72,6 +72,7 @@ export function devUpdateSocio(id: string, data: SocioFormData): boolean {
   const idx = state.detalle.findIndex((s) => s.id === id)
   if (idx === -1) return false
   const prev = state.detalle[idx]
+  if (!prev) return false
   const updated: SocioDetalle = {
     ...prev,
     nombre: data.nombre,

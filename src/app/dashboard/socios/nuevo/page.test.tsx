@@ -25,15 +25,21 @@ interface MockSelectTriggerProps {
 }
 
 jest.mock('../../../../components/ui/select', () => ({
-  Select: ({ children, onValueChange }: MockSelectProps) => {
-    const triggerProps = (children as React.ReactElement<MockSelectTriggerProps>)?.props;
-    const triggerLabel = triggerProps?.label || '';
+  Select: ({ children, onValueChange, value }: MockSelectProps) => {
+    const kids = React.Children.toArray(children);
+    const trigger = kids.find(
+      (k): k is React.ReactElement<MockSelectTriggerProps> =>
+        React.isValidElement(k) && typeof (k.props as MockSelectTriggerProps).label === 'string'
+    );
+    const triggerLabel = trigger?.props.label ?? '';
     return (
       <div
         data-testid={`mock-select-${triggerLabel}`}
+        data-value={value || ''}
         onClick={() => {
           if (onValueChange) {
-            if (/sepelio/i.test(triggerLabel) || /cobrador/i.test(triggerLabel)) onValueChange('SI');
+            if (/ciudad/i.test(triggerLabel)) onValueChange('Rosario');
+            else if (/sepelio/i.test(triggerLabel) || /cobrador/i.test(triggerLabel)) onValueChange('SI');
             else onValueChange('A');
           }
         }}
@@ -103,7 +109,7 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
     await userEvent.type(screen.getByLabelText(/^nombre$/i), 'Juan');
     await userEvent.type(screen.getByLabelText(/apellido/i), 'Pérez');
     fireEvent.change(screen.getByLabelText(/fecha de nacimiento/i), { target: { value: '1990-01-01' } });
-    await userEvent.type(screen.getByLabelText(/ciudad/i), 'Buenos Aires');
+    fireEvent.click(screen.getByTestId('mock-select-Ciudad'));
     await userEvent.type(screen.getByLabelText(/calle/i), 'Falsa');
     await userEvent.type(screen.getByLabelText(/altura/i), '123');
     fireEvent.change(screen.getByLabelText(/fecha de alta/i), { target: { value: '2024-01-01' } });
@@ -111,12 +117,12 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
     fireEvent.click(screen.getByLabelText(/plan/i));
     fireEvent.click(screen.getByLabelText(/cobrador/i));
 
-    await userEvent.type((await screen.findAllByLabelText(/teléfono/i))[0], '12345678');
+    await userEvent.type((await screen.findAllByLabelText(/teléfono/i))[0]!, '12345678');
     const agregarButtons = screen.getAllByRole('button', { name: /agregar/i });
-    await userEvent.click(agregarButtons[0]);
+    await userEvent.click(agregarButtons[0]!);
 
-    await userEvent.type((await screen.findAllByLabelText(/correo electrónico/i))[0], 'test@example.com');
-    await userEvent.click(agregarButtons[1]);
+    await userEvent.type((await screen.findAllByLabelText(/correo electrónico/i))[0]!, 'test@example.com');
+    await userEvent.click(agregarButtons[1]!);
 
     fireEvent.click(await screen.findByRole('button', { name: /grabar/i }));
 
@@ -125,6 +131,7 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
         nroDocumento: '12345678',
         nombre: 'Juan',
         apellido: 'Pérez',
+        ciudad: 'Rosario',
         telefonos: ['12345678'],
         correos: ['test@example.com'],
       }));
@@ -158,7 +165,7 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/^nombre$/i)).toHaveValue('Carlos');
       expect(screen.getByLabelText(/apellido/i)).toHaveValue('González');
-      expect(screen.getByLabelText(/ciudad/i)).toHaveValue('Rosario');
+      expect(screen.getByTestId('mock-select-Ciudad')).toHaveAttribute('data-value', 'Rosario');
     });
 
     fireEvent.click(screen.getByRole('button', { name: /grabar/i }));
