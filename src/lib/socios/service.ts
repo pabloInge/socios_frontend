@@ -50,6 +50,7 @@ function detalleToFormData(d: SocioDetalle): SocioFormData {
     observaciones: d.observaciones,
     telefonos: [...d.telefonos],
     correos: [...d.correos],
+    codeudores: (d.codeudores ?? []).map((c) => ({ ...c })),
   }
 }
 

@@ -11,6 +11,7 @@ import { useSociosService, type SocioDetalle } from "@/lib/socios/service-contex
 
 import { socioSchema, SocioFormData, normalizeContacts } from "./schema"
 import {
+  CodeudoresFields,
   ContactosFields,
   DatosPersonalesFields,
   DocumentoField,
@@ -47,6 +48,7 @@ function NuevoSocioForm() {
       sexo: "",
       telefonos: [],
       correos: [],
+      codeudores: [],
       plan: "",
       sepelio: "NO",
       cobrador: "NO",
@@ -99,12 +101,14 @@ function NuevoSocioForm() {
         const formattedCorreos = (socio.correos || []).map((c) =>
           typeof c === "string" ? { value: c } : c
         )
+        const formattedCodeudores = (socio.codeudores || []).map((c) => ({ ...c }))
 
         reset({
           ...socio,
           nroDocumento: socio.nroDocumento || nroDocumentoValue,
           telefonos: formattedTelefonos,
           correos: formattedCorreos,
+          codeudores: formattedCodeudores,
         })
       } else {
         reset({
@@ -126,6 +130,7 @@ function NuevoSocioForm() {
           observaciones: "",
           telefonos: [],
           correos: [],
+          codeudores: [],
         })
       }
       setIsVerificado(true)
@@ -148,6 +153,7 @@ function NuevoSocioForm() {
       sexo: "",
       telefonos: [],
       correos: [],
+      codeudores: [],
       plan: "",
       sepelio: "NO",
       cobrador: "NO",
@@ -176,6 +182,7 @@ function NuevoSocioForm() {
         observaciones: socio.observaciones,
         telefonos: socio.telefonos.map((t) => ({ value: t })),
         correos: socio.correos.map((c) => ({ value: c })),
+        codeudores: (socio.codeudores ?? []).map((c) => ({ ...c })),
       })
       setIsVerificado(true)
     },
@@ -247,6 +254,8 @@ function NuevoSocioForm() {
               />
 
               <ContactosFields control={control} errors={errors} />
+
+              <CodeudoresFields control={control} errors={errors} excludeId={editId} />
 
               <ObservacionesFields register={register} errors={errors} />
 

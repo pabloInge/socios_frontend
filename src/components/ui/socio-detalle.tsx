@@ -98,6 +98,18 @@ export function SocioDetalleCard({ socio }: { socio: SocioDetalle }) {
           )}
       </section>
 
+      {socio.codeudores && socio.codeudores.length > 0 && (
+        <SectionCard title="Codeudores">
+          {socio.codeudores.map((codeudor) => (
+            <FieldRow
+              key={codeudor.id}
+              label={`${codeudor.apellido}, ${codeudor.nombre}`}
+              value={`DNI ${codeudor.nroDocumento}`}
+            />
+          ))}
+        </SectionCard>
+      )}
+
       <SectionCard title="Observaciones">
         <FieldRow label="Observaciones" value={socio.observaciones} />
       </SectionCard>

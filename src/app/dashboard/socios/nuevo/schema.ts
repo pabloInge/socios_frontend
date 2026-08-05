@@ -19,6 +19,12 @@ export const socioSchema = z.object({
   observaciones: z.string().optional(),
   telefonos: z.array(z.union([z.string(), z.object({ value: z.string() })])).optional(),
   correos: z.array(z.union([z.string(), z.object({ value: z.string().email("Correo inválido") })])).optional(),
+  codeudores: z.array(z.object({
+    id: z.string(),
+    nombre: z.string(),
+    apellido: z.string(),
+    nroDocumento: z.string(),
+  })).optional(),
 });
 
 export type SocioFormData = z.infer<typeof socioSchema>;
@@ -33,4 +39,11 @@ export function normalizeContacts(values: ContactField[] | undefined): string[] 
   return (values ?? [])
     .map(contactValue)
     .filter(Boolean);
+}
+
+export interface Codeudor {
+  id: string;
+  nombre: string;
+  apellido: string;
+  nroDocumento: string;
 }

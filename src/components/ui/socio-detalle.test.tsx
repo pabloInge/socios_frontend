@@ -111,4 +111,25 @@ describe('SocioDetalleCard', () => {
     render(<SocioDetalleCard socio={sinObs} />);
     expect(screen.getByText('—')).toBeInTheDocument();
   });
+
+  it('debe mostrar los codeudores con nombre y DNI', () => {
+    const conCodeudores = {
+      ...mockSocio,
+      codeudores: [
+        { id: '2', nombre: 'María', apellido: 'Gómez', nroDocumento: '20123456' },
+        { id: '4', nombre: 'Ana', apellido: 'Martínez', nroDocumento: '45678901' },
+      ],
+    };
+    render(<SocioDetalleCard socio={conCodeudores} />);
+    expect(screen.getByText('Codeudores')).toBeInTheDocument();
+    expect(screen.getByText('Gómez, María')).toBeInTheDocument();
+    expect(screen.getByText('DNI 20123456')).toBeInTheDocument();
+    expect(screen.getByText('Martínez, Ana')).toBeInTheDocument();
+    expect(screen.getByText('DNI 45678901')).toBeInTheDocument();
+  });
+
+  it('no debe mostrar la seccion de codeudores si no hay', () => {
+    render(<SocioDetalleCard socio={mockSocio} />);
+    expect(screen.queryByText('Codeudores')).not.toBeInTheDocument();
+  });
 });

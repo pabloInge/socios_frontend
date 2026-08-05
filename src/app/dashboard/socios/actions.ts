@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { fetchAPI } from "@/lib/apiClient";
+import type { Codeudor } from "@/app/dashboard/socios/nuevo/schema";
 
 export interface SocioListItem {
   id: string;
@@ -33,6 +34,7 @@ export interface SocioDetalle {
   observaciones?: string;
   telefonos: string[];
   correos: string[];
+  codeudores?: Codeudor[];
 }
 
 export async function obtenerSocios(): Promise<SocioListItem[]> {

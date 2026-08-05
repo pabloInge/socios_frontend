@@ -40,7 +40,14 @@ export function devGetSocios(): SocioListItem[] {
 
 export function devGetSocioDetalle(id: string): SocioDetalle | null {
   const found = state.detalle.find((s) => s.id === id)
-  return found ? { ...found, telefonos: [...found.telefonos], correos: [...found.correos] } : null
+  return found
+    ? {
+        ...found,
+        telefonos: [...found.telefonos],
+        correos: [...found.correos],
+        codeudores: found.codeudores?.map((c) => ({ ...c })),
+      }
+    : null
 }
 
 export function devAddSocio(data: SocioFormData): string {
@@ -65,6 +72,7 @@ export function devAddSocio(data: SocioFormData): string {
     observaciones: data.observaciones,
     telefonos: normalizeContacts(data.telefonos),
     correos: normalizeContacts(data.correos),
+    codeudores: (data.codeudores ?? []).map((c) => ({ ...c })),
   }
   state.detalle.push(detalle)
   state.list.push(toListItem(detalle))
@@ -96,6 +104,7 @@ export function devUpdateSocio(id: string, data: SocioFormData): boolean {
     observaciones: data.observaciones,
     telefonos: normalizeContacts(data.telefonos),
     correos: normalizeContacts(data.correos),
+    codeudores: (data.codeudores ?? []).map((c) => ({ ...c })),
   }
   state.detalle[idx] = updated
   const lidx = state.list.findIndex((s) => s.id === id)
@@ -110,7 +119,12 @@ export function devFindSocioByDocumento(
     (s) => s.nroDocumento === nroDocumento
   )
   return found
-    ? { ...found, telefonos: [...found.telefonos], correos: [...found.correos] }
+    ? {
+        ...found,
+        telefonos: [...found.telefonos],
+        correos: [...found.correos],
+        codeudores: found.codeudores?.map((c) => ({ ...c })),
+      }
     : null
 }
 

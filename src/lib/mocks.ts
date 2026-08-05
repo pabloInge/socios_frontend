@@ -119,6 +119,9 @@ export const MOCK_SOCIOS_DETALLE: SocioDetalle[] = [
     observaciones: "Socio con domicilio particular en Buenos Aires.",
     telefonos: ["3412345678"],
     correos: ["juan.perez@example.com"],
+    codeudores: [
+      { id: "2", nombre: "María", apellido: "Gómez", nroDocumento: "20123456" },
+    ],
   },
   {
     id: "2",
@@ -293,6 +296,10 @@ export const MOCK_SOCIOS_DETALLE: SocioDetalle[] = [
     observaciones: "Socio desde agosto de 2024.",
     telefonos: ["3471556677"],
     correos: ["veronica.ruiz@example.com"],
+    codeudores: [
+      { id: "1", nombre: "Juan", apellido: "Pérez", nroDocumento: "12345678" },
+      { id: "4", nombre: "Ana", apellido: "Martínez", nroDocumento: "45678901" },
+    ],
   },
 ];
 

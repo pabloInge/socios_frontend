@@ -296,6 +296,95 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
     });
   });
 
+  it('debe permitir elegir codeudores de la lista de socios y guardarlos', async () => {
+    const findByDocumento = jest.fn().mockResolvedValue({
+      nroDocumento: '12345678',
+      nombre: 'Carlos',
+      apellido: 'González',
+      fechaNacimiento: '1975-06-18',
+      sexo: 'Hombre',
+      ciudad: 'Rosario',
+      calle: 'Mitre',
+      altura: '980',
+      fechaAlta: '2023-01-10',
+      obraSocial: 'OSDE',
+      plan: 'A',
+      sepelio: 'SI',
+      cobrador: 'SI',
+      telefonos: [],
+      correos: [],
+      codeudores: [],
+    });
+    const list = jest.fn().mockResolvedValue([
+      { id: '2', nombre: 'María', apellido: 'Gómez', nroDocumento: '20123456', obraSocial: 'OSDE', plan: 'B', estado: 'Activo' },
+      { id: '3', nombre: 'Carlos', apellido: 'Rodríguez', nroDocumento: '34567890', obraSocial: 'IAPOS', plan: 'A', estado: 'Baja' },
+    ]);
+    const create = jest.fn().mockResolvedValue(undefined);
+    renderPage(makeFake({ findByDocumento, list, create }));
+
+    await userEvent.type(screen.getByLabelText(/^documento$/i), '12345678');
+    fireEvent.click(screen.getByRole('button', { name: /^buscar$/i }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/^nombre$/i)).toHaveValue('Carlos');
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /agregar codeudor/i }));
+
+    const row = (await screen.findByText('Gómez')).closest('tr')!;
+    fireEvent.click(within(row).getByRole('button', { name: /elegir/i }));
+
+    expect(screen.getByText(/Gómez, María — DNI 20123456/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /grabar/i }));
+
+    await waitFor(() => {
+      expect(create).toHaveBeenCalledWith(expect.objectContaining({
+        codeudores: [{ id: '2', nombre: 'María', apellido: 'Gómez', nroDocumento: '20123456' }],
+      }));
+    });
+  });
+
+  it('debe precargar los codeudores existentes al editar y no mostrarlos como disponibles', async () => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams('edit=10'));
+    const get = jest.fn().mockResolvedValue({
+      id: '10',
+      nombre: 'Verónica',
+      apellido: 'Ruiz',
+      nroDocumento: '89012345',
+      fechaNacimiento: '1992-11-25',
+      sexo: 'Mujer',
+      ciudad: 'Cañada de Gómez',
+      calle: 'Buenos Aires',
+      altura: '486',
+      fechaAlta: '2024-08-12',
+      obraSocial: 'Jerárquicos Salud',
+      plan: 'B',
+      sepelio: 'NO',
+      cobrador: 'NO',
+      telefonos: [],
+      correos: [],
+      codeudores: [
+        { id: '1', nombre: 'Juan', apellido: 'Pérez', nroDocumento: '12345678' },
+      ],
+    });
+    const list = jest.fn().mockResolvedValue([
+      { id: '1', nombre: 'Juan', apellido: 'Pérez', nroDocumento: '12345678', obraSocial: 'PAMI', plan: 'A', estado: 'Activo' },
+      { id: '4', nombre: 'Ana', apellido: 'Martínez', nroDocumento: '45678901', obraSocial: 'PAMI', plan: 'B', estado: 'Activo' },
+    ]);
+    const update = jest.fn().mockResolvedValue(undefined);
+    renderPage(makeFake({ get, list, update }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Pérez, Juan — DNI 12345678/i)).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /agregar codeudor/i }));
+
+    expect(screen.queryByText('Pérez')).not.toBeInTheDocument();
+    expect(screen.getByText('Martínez')).toBeInTheDocument();
+  });
+
   it('en modo edicion, Grabar llama a service.update con el id y los datos', async () => {
     mockUseSearchParams.mockReturnValue(new URLSearchParams('edit=1'));
     const get = jest.fn().mockResolvedValue({
