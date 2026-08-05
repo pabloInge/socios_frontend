@@ -17,6 +17,7 @@ import {
   FechasEstadoFields,
   FormFooter,
   ObraSocialFields,
+  ObservacionesFields,
 } from "./form-sections"
 
 function NuevoSocioForm() {
@@ -43,6 +44,7 @@ function NuevoSocioForm() {
     defaultValues: {
       nroDocumento: "",
       fechaAlta: new Date().toISOString().split("T")[0],
+      sexo: "",
       telefonos: [],
       correos: [],
       plan: "",
@@ -54,6 +56,7 @@ function NuevoSocioForm() {
   const nroDocumentoValue = useWatch({ control, name: "nroDocumento" })
   const selectedObraSocial = useWatch({ control, name: "obraSocial" })
   const ciudadValue = useWatch({ control, name: "ciudad" })
+  const sexoValue = useWatch({ control, name: "sexo" })
   const planValue = useWatch({ control, name: "plan" })
   const sepelioValue = useWatch({ control, name: "sepelio" })
   const cobradorValue = useWatch({ control, name: "cobrador" })
@@ -109,15 +112,18 @@ function NuevoSocioForm() {
           nombre: "",
           apellido: "",
           fechaNacimiento: "",
+          sexo: "",
           ciudad: "",
           calle: "",
           altura: "",
           fechaAlta: new Date().toISOString().split("T")[0],
           fechaBaja: "",
           obraSocial: "",
+          nroAfiliadoObraSocial: "",
           plan: "",
           sepelio: "NO",
           cobrador: "NO",
+          observaciones: "",
           telefonos: [],
           correos: [],
         })
@@ -139,6 +145,7 @@ function NuevoSocioForm() {
     reset({
       nroDocumento: "",
       fechaAlta: new Date().toISOString().split("T")[0],
+      sexo: "",
       telefonos: [],
       correos: [],
       plan: "",
@@ -155,15 +162,18 @@ function NuevoSocioForm() {
         nombre: socio.nombre,
         apellido: socio.apellido,
         fechaNacimiento: socio.fechaNacimiento,
+        sexo: socio.sexo ?? "",
         ciudad: socio.ciudad,
         calle: socio.calle,
         altura: socio.altura,
         fechaAlta: socio.fechaAlta,
         fechaBaja: socio.fechaBaja,
         obraSocial: socio.obraSocial,
+        nroAfiliadoObraSocial: socio.nroAfiliadoObraSocial,
         plan: socio.plan,
         sepelio: socio.sepelio ?? "NO",
         cobrador: socio.cobrador,
+        observaciones: socio.observaciones,
         telefonos: socio.telefonos.map((t) => ({ value: t })),
         correos: socio.correos.map((c) => ({ value: c })),
       })
@@ -216,6 +226,7 @@ function NuevoSocioForm() {
                 errors={errors}
                 setValue={setValue}
                 ciudadValue={ciudadValue}
+                sexoValue={sexoValue}
                 editId={editId}
               />
 
@@ -226,6 +237,7 @@ function NuevoSocioForm() {
               <FechasEstadoFields register={register} errors={errors} />
 
               <ObraSocialFields
+                register={register}
                 setValue={setValue}
                 errors={errors}
                 obraSocialValue={selectedObraSocial}
@@ -235,6 +247,8 @@ function NuevoSocioForm() {
               />
 
               <ContactosFields control={control} errors={errors} />
+
+              <ObservacionesFields register={register} errors={errors} />
 
               <div className="col-span-12 mt-4">
                 <Separator />

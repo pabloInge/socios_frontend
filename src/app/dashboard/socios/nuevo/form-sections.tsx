@@ -13,11 +13,12 @@ import { Plus, Search, Check, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Chip } from "@/components/ui/chip"
+import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog"
 import { DataTable, type Column } from "@/components/ui/data-table"
 import { Fab } from "@/components/ui/fab"
-import { MOCK_CIUDADES } from "@/lib/ciudades"
+import { MOCK_CIUDADES, type Ciudad } from "@/lib/ciudades"
 import { MOCK_OBRAS_SOCIALES, type ObraSocial } from "@/lib/obras-sociales"
 
 import type { SocioFormData } from "./schema"
@@ -26,6 +27,10 @@ import { contactValue } from "./schema"
 const OBRAS_SOCIALES_COLUMNS: Column<ObraSocial>[] = [
   { key: "id", header: "Id", accessor: (o) => o.id, searchable: true },
   { key: "nombre", header: "Nombre", accessor: (o) => o.nombre, searchable: true },
+]
+
+const CIUDADES_COLUMNS: Column<Ciudad>[] = [
+  { key: "nombre", header: "Nombre", accessor: (c) => c.nombre, searchable: true },
 ]
 
 interface DocumentoFieldProps {
@@ -102,6 +107,7 @@ interface DatosPersonalesFieldsProps {
   errors: FieldErrors<SocioFormData>
   setValue: UseFormSetValue<SocioFormData>
   ciudadValue: string | undefined
+  sexoValue: string | undefined
   editId: string | null
 }
 
@@ -110,6 +116,7 @@ export function DatosPersonalesFields({
   errors,
   setValue,
   ciudadValue,
+  sexoValue,
   editId,
 }: DatosPersonalesFieldsProps) {
   const ciudadOptions =
@@ -148,7 +155,7 @@ export function DatosPersonalesFields({
         />
       </div>
 
-      <div className="col-span-12 md:col-span-6">
+      <div className="col-span-12 md:col-span-3">
         <Input
           label="Fecha de nacimiento"
           type="date"
@@ -159,24 +166,70 @@ export function DatosPersonalesFields({
         />
       </div>
 
-      <div className="col-span-12 md:col-span-6">
+      <div className="col-span-12 md:col-span-3">
         <Select
-          value={ciudadValue || ""}
-          onValueChange={(val) => setValue("ciudad", val, { shouldValidate: true })}
+          required
+          value={sexoValue || ""}
+          onValueChange={(val) => setValue("sexo", val, { shouldValidate: true })}
         >
-          <SelectTrigger label="Ciudad" variant="outlined" error={!!errors.ciudad}>
+          <SelectTrigger label="Sexo" variant="outlined" error={!!errors.sexo}>
             <SelectValue placeholder=" " />
           </SelectTrigger>
           <SelectContent>
-            {ciudadOptions.map((c) => (
-              <SelectItem key={c.id} value={c.nombre}>
-                {c.nombre}
-              </SelectItem>
-            ))}
+            <SelectItem value="Hombre">Hombre</SelectItem>
+            <SelectItem value="Mujer">Mujer</SelectItem>
+            <SelectItem value="Otro">Otro</SelectItem>
           </SelectContent>
         </Select>
-        {errors.ciudad && <p className="text-xs text-destructive mt-1 px-4">{errors.ciudad.message}</p>}
+        {errors.sexo && <p className="text-xs text-destructive mt-1 px-4">{errors.sexo.message}</p>}
       </div>
+
+      <div className="col-span-12 md:col-span-6 flex flex-col sm:flex-row items-start sm:items-end gap-2">
+        <div className="flex-grow w-full">
+          <Input
+            label="Ciudad"
+            value={ciudadValue || "Ninguna seleccionada"}
+            readOnly
+            variant="outlined"
+            error={!!errors.ciudad}
+          />
+        </div>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="secondary" className="w-full sm:w-auto h-14" size="default">
+              <Search className="size-4" />
+              Seleccionar
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-xl">
+            <DialogHeader>
+              <DialogTitle>Buscar ciudad</DialogTitle>
+            </DialogHeader>
+            <div className="py-4 space-y-4">
+              <DataTable<Ciudad>
+                storageKey="ciudades-selector"
+                data={ciudadOptions}
+                columns={CIUDADES_COLUMNS}
+                getRowId={(c) => c.id}
+                searchPlaceholder="Buscar ciudad por nombre"
+                emptyMessage="No se encontraron ciudades"
+                columnsLabel="Columnas"
+                renderActions={(c) => (
+                  <DialogClose asChild>
+                    <Button
+                      size="sm"
+                      onClick={() => setValue("ciudad", c.nombre, { shouldValidate: true })}
+                    >
+                      Elegir
+                    </Button>
+                  </DialogClose>
+                )}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+      {errors.ciudad && <p className="text-xs text-destructive mt-1 px-4">{errors.ciudad.message}</p>}
 
       <div className="col-span-12 md:col-span-9">
         <Input
@@ -244,6 +297,7 @@ export function FechasEstadoFields({ register, errors }: FechasEstadoFieldsProps
 }
 
 interface ObraSocialFieldsProps {
+  register: UseFormRegister<SocioFormData>
   setValue: UseFormSetValue<SocioFormData>
   errors: FieldErrors<SocioFormData>
   obraSocialValue: string | undefined
@@ -253,6 +307,7 @@ interface ObraSocialFieldsProps {
 }
 
 export function ObraSocialFields({
+  register,
   setValue,
   errors,
   obraSocialValue,
@@ -305,6 +360,14 @@ export function ObraSocialFields({
             </div>
           </DialogContent>
         </Dialog>
+      </div>
+
+      <div className="col-span-12 md:col-span-6">
+        <Input
+          label="Nº de Afiliado de la Obra Social"
+          variant="outlined"
+          {...register("nroAfiliadoObraSocial")}
+        />
       </div>
 
       <div className="col-span-12 md:col-span-3 lg:col-span-2">
@@ -479,6 +542,36 @@ export function ContactosFields({ control, errors }: ContactosFieldsProps) {
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+interface ObservacionesFieldsProps {
+  register: UseFormRegister<SocioFormData>
+  errors: FieldErrors<SocioFormData>
+}
+
+export function ObservacionesFields({ register, errors }: ObservacionesFieldsProps) {
+  return (
+    <div className="col-span-12 mt-6">
+      <h2 className="text-xl mb-4 font-medium">Observaciones</h2>
+      <textarea
+        aria-label="Observaciones"
+        rows={4}
+        placeholder="Ingrese observaciones (opcional)"
+        className={cn(
+          "w-full rounded-[4px] border bg-transparent px-4 py-3 text-base text-foreground outline-none transition-all",
+          "placeholder:text-on-surface-variant/60",
+          "focus:border-2",
+          errors.observaciones
+            ? "border-destructive focus:border-destructive hover:border-destructive"
+            : "border-outline hover:border-on-surface-variant focus:border-primary"
+        )}
+        {...register("observaciones")}
+      />
+      {errors.observaciones && (
+        <p className="text-xs text-destructive mt-1 px-4">{errors.observaciones.message}</p>
+      )}
     </div>
   )
 }

@@ -31,6 +31,7 @@ const socioData = {
   apellido: 'Apellido',
   nroDocumento: '1',
   fechaNacimiento: '1990-01-01',
+  sexo: 'Hombre',
   ciudad: 'Rosario',
   calle: 'Calle',
   altura: '100',
@@ -38,6 +39,7 @@ const socioData = {
   plan: 'A',
   sepelio: 'NO',
   cobrador: 'NO',
+  observaciones: 'Observación de prueba',
 } as SocioFormData;
 
 describe('SociosService (DI por flag mockMode)', () => {

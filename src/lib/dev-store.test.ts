@@ -15,6 +15,7 @@ const baseSocio: SocioFormData = {
   apellido: 'Apellido',
   nroDocumento: '99999999',
   fechaNacimiento: '1990-01-01',
+  sexo: 'Hombre',
   ciudad: 'Rosario',
   calle: 'Calle',
   altura: '100',
@@ -22,6 +23,7 @@ const baseSocio: SocioFormData = {
   plan: 'A',
   sepelio: 'NO',
   cobrador: 'NO',
+  observaciones: 'Observación de prueba',
   telefonos: ['3411234567'],
   correos: ['test@example.com'],
 };
@@ -73,6 +75,8 @@ describe('dev-store', () => {
       const detalle = devGetSocioDetalle(id);
       expect(detalle).not.toBeNull();
       expect(detalle!.nombre).toBe('Test');
+      expect(detalle!.sexo).toBe('Hombre');
+      expect(detalle!.observaciones).toBe('Observación de prueba');
       expect(detalle!.telefonos).toEqual(['3411234567']);
       expect(detalle!.correos).toEqual(['test@example.com']);
     });
@@ -99,10 +103,13 @@ describe('dev-store', () => {
   describe('devUpdateSocio', () => {
     it('debe actualizar los campos de un socio existente', () => {
       const id = devAddSocio(baseSocio);
-      const ok = devUpdateSocio(id, { ...baseSocio, nombre: 'Actualizado' });
+      const ok = devUpdateSocio(id, { ...baseSocio, nombre: 'Actualizado', sexo: 'Mujer', nroAfiliadoObraSocial: 'OS-999', observaciones: 'Nueva observación' });
 
       expect(ok).toBe(true);
       expect(devGetSocioDetalle(id)!.nombre).toBe('Actualizado');
+      expect(devGetSocioDetalle(id)!.sexo).toBe('Mujer');
+      expect(devGetSocioDetalle(id)!.nroAfiliadoObraSocial).toBe('OS-999');
+      expect(devGetSocioDetalle(id)!.observaciones).toBe('Nueva observación');
       expect(devGetSocios().find((s) => s.id === id)!.nombre).toBe('Actualizado');
     });
 

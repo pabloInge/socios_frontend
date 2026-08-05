@@ -19,15 +19,18 @@ export interface SocioDetalle {
   apellido: string;
   nroDocumento: string;
   fechaNacimiento: string;
+  sexo?: string;
   ciudad: string;
   calle: string;
   altura: string;
   fechaAlta: string;
   fechaBaja?: string;
   obraSocial?: string;
+  nroAfiliadoObraSocial?: string;
   plan: string;
   sepelio?: string;
   cobrador: string;
+  observaciones?: string;
   telefonos: string[];
   correos: string[];
 }

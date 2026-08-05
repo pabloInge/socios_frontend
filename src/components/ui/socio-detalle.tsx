@@ -47,6 +47,7 @@ export function SocioDetalleCard({ socio }: { socio: SocioDetalle }) {
           <div className="flex flex-wrap gap-x-10 gap-y-3">
             <FieldRow label="ID" value={socio.id} />
             <FieldRow label="Estado" value={socio.fechaBaja ? "Baja" : "Activo"} />
+            <FieldRow label="Sexo" value={socio.sexo} />
             <FieldRow label="Fecha de Nacimiento" value={socio.fechaNacimiento} />
             <FieldRow label="Fecha de Alta" value={socio.fechaAlta} />
             {socio.fechaBaja && (
@@ -65,6 +66,7 @@ export function SocioDetalleCard({ socio }: { socio: SocioDetalle }) {
 
         <SectionCard title="Plan y Cobertura">
           <FieldRow label="Obra Social" value={socio.obraSocial} />
+          <FieldRow label="Nº de Afiliado" value={socio.nroAfiliadoObraSocial} />
           <FieldRow label="Plan" value={socio.plan} />
           <FieldRow label="Sepelio" value={socio.sepelio === "SI" ? "Incluido" : "No incluido"} />
           <FieldRow label="Cobrador" value={socio.cobrador === "SI" ? "Asignado" : "No asignado"} />
@@ -95,6 +97,10 @@ export function SocioDetalleCard({ socio }: { socio: SocioDetalle }) {
             <FieldRow label="Correos Electrónicos" value={null} />
           )}
       </section>
+
+      <SectionCard title="Observaciones">
+        <FieldRow label="Observaciones" value={socio.observaciones} />
+      </SectionCard>
     </div>
   )
 }

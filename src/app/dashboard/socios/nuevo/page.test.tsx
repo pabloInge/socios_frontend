@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import NuevoSocioPage from './page';
 import { SociosServiceProvider, type SociosService } from '@/lib/socios/service-context';
@@ -39,6 +39,7 @@ jest.mock('../../../../components/ui/select', () => ({
         onClick={() => {
           if (onValueChange) {
             if (/ciudad/i.test(triggerLabel)) onValueChange('Rosario');
+            else if (/sexo/i.test(triggerLabel)) onValueChange('Hombre');
             else if (/sepelio/i.test(triggerLabel) || /cobrador/i.test(triggerLabel)) onValueChange('SI');
             else onValueChange('A');
           }
@@ -109,13 +110,18 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
     await userEvent.type(screen.getByLabelText(/^nombre$/i), 'Juan');
     await userEvent.type(screen.getByLabelText(/apellido/i), 'Pérez');
     fireEvent.change(screen.getByLabelText(/fecha de nacimiento/i), { target: { value: '1990-01-01' } });
-    fireEvent.click(screen.getByTestId('mock-select-Ciudad'));
+    fireEvent.click(screen.getByTestId('mock-select-Sexo'));
+    const ciudadRow = screen.getByText('Rosario').closest('tr');
+    fireEvent.click(within(ciudadRow!).getByRole('button', { name: /elegir/i }));
+    expect(screen.getByLabelText(/^ciudad$/i)).toHaveValue('Rosario');
     await userEvent.type(screen.getByLabelText(/calle/i), 'Falsa');
     await userEvent.type(screen.getByLabelText(/altura/i), '123');
     fireEvent.change(screen.getByLabelText(/fecha de alta/i), { target: { value: '2024-01-01' } });
 
     fireEvent.click(screen.getByLabelText(/plan/i));
     fireEvent.click(screen.getByLabelText(/cobrador/i));
+
+    await userEvent.type(screen.getByLabelText(/nº de afiliado de la obra social/i), 'PAMI-12345678');
 
     await userEvent.type((await screen.findAllByLabelText(/teléfono/i))[0]!, '12345678');
     const agregarButtons = screen.getAllByRole('button', { name: /agregar/i });
@@ -124,6 +130,8 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
     await userEvent.type((await screen.findAllByLabelText(/correo electrónico/i))[0]!, 'test@example.com');
     await userEvent.click(agregarButtons[1]!);
 
+    await userEvent.type(screen.getByLabelText(/^observaciones$/i), 'Socio de prueba');
+
     fireEvent.click(await screen.findByRole('button', { name: /grabar/i }));
 
     await waitFor(() => {
@@ -131,7 +139,10 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
         nroDocumento: '12345678',
         nombre: 'Juan',
         apellido: 'Pérez',
+        sexo: 'Hombre',
         ciudad: 'Rosario',
+        nroAfiliadoObraSocial: 'PAMI-12345678',
+        observaciones: 'Socio de prueba',
         telefonos: ['12345678'],
         correos: ['test@example.com'],
       }));
@@ -144,14 +155,17 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
       nombre: 'Carlos',
       apellido: 'González',
       fechaNacimiento: '1975-06-18',
+      sexo: 'Hombre',
       ciudad: 'Rosario',
       calle: 'Mitre',
       altura: '980',
       fechaAlta: '2023-01-10',
       obraSocial: 'OSDE',
+      nroAfiliadoObraSocial: 'OSDE-12345678',
       plan: 'A',
       sepelio: 'SI',
       cobrador: 'SI',
+      observaciones: 'Socio existente',
       telefonos: ['341500600'],
       correos: ['carlos@test.com'],
     });
@@ -165,7 +179,10 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/^nombre$/i)).toHaveValue('Carlos');
       expect(screen.getByLabelText(/apellido/i)).toHaveValue('González');
-      expect(screen.getByTestId('mock-select-Ciudad')).toHaveAttribute('data-value', 'Rosario');
+      expect(screen.getByLabelText(/^ciudad$/i)).toHaveValue('Rosario');
+      expect(screen.getByTestId('mock-select-Sexo')).toHaveAttribute('data-value', 'Hombre');
+      expect(screen.getByLabelText(/nº de afiliado de la obra social/i)).toHaveValue('OSDE-12345678');
+      expect(screen.getByLabelText(/^observaciones$/i)).toHaveValue('Socio existente');
     });
 
     fireEvent.click(screen.getByRole('button', { name: /grabar/i }));
@@ -175,6 +192,9 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
         nroDocumento: '12345678',
         nombre: 'Carlos',
         apellido: 'González',
+        sexo: 'Hombre',
+        nroAfiliadoObraSocial: 'OSDE-12345678',
+        observaciones: 'Socio existente',
       }));
     });
   });
@@ -229,6 +249,7 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
       expect(create).not.toHaveBeenCalled();
       expect(screen.getByText(/el nombre debe tener al menos 2 letras/i)).toBeInTheDocument();
       expect(screen.getByText(/la ciudad es obligatoria/i)).toBeInTheDocument();
+      expect(screen.getByText(/el sexo es obligatorio/i)).toBeInTheDocument();
     });
   });
 
@@ -248,14 +269,17 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
       apellido: 'Pérez',
       nroDocumento: '12345678',
       fechaNacimiento: '1990-01-01',
+      sexo: 'Hombre',
       ciudad: 'Buenos Aires',
       calle: 'Falsa',
       altura: '123',
       fechaAlta: '2024-01-01',
       obraSocial: 'PAMI',
+      nroAfiliadoObraSocial: 'PAMI-12345678',
       plan: 'A',
       sepelio: 'SI',
       cobrador: 'NO',
+      observaciones: 'Observaciones de edición',
       telefonos: ['3412345678'],
       correos: ['juan.perez@example.com'],
     });
@@ -267,6 +291,8 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
       expect(get).toHaveBeenCalledWith('1');
       expect(screen.getByLabelText(/^nombre$/i)).toHaveValue('Juan');
       expect(screen.getByLabelText(/apellido/i)).toHaveValue('Pérez');
+      expect(screen.getByTestId('mock-select-Sexo')).toHaveAttribute('data-value', 'Hombre');
+      expect(screen.getByLabelText(/^observaciones$/i)).toHaveValue('Observaciones de edición');
     });
   });
 
@@ -278,6 +304,7 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
       apellido: 'Pérez',
       nroDocumento: '12345678',
       fechaNacimiento: '1990-01-01',
+      sexo: 'Mujer',
       ciudad: 'Buenos Aires',
       calle: 'Falsa',
       altura: '123',
@@ -301,6 +328,7 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
         nombre: 'Juan',
         apellido: 'Pérez',
         nroDocumento: '12345678',
+        sexo: 'Mujer',
       }));
     });
   });

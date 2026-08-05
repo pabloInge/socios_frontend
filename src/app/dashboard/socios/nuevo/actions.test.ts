@@ -15,6 +15,7 @@ const datosSocio = {
   nombre: 'Juan',
   apellido: 'Pérez',
   fechaNacimiento: '1990-01-01',
+  sexo: 'Hombre',
   ciudad: 'Buenos Aires',
   calle: 'Falsa',
   altura: '123',
