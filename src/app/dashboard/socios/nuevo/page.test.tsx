@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import NuevoSocioPage from './page';
 import { SociosServiceProvider, type SociosService } from '@/lib/socios/service-context';
@@ -25,15 +25,22 @@ interface MockSelectTriggerProps {
 }
 
 jest.mock('../../../../components/ui/select', () => ({
-  Select: ({ children, onValueChange }: MockSelectProps) => {
-    const triggerProps = (children as React.ReactElement<MockSelectTriggerProps>)?.props;
-    const triggerLabel = triggerProps?.label || '';
+  Select: ({ children, onValueChange, value }: MockSelectProps) => {
+    const kids = React.Children.toArray(children);
+    const trigger = kids.find(
+      (k): k is React.ReactElement<MockSelectTriggerProps> =>
+        React.isValidElement(k) && typeof (k.props as MockSelectTriggerProps).label === 'string'
+    );
+    const triggerLabel = trigger?.props.label ?? '';
     return (
       <div
         data-testid={`mock-select-${triggerLabel}`}
+        data-value={value || ''}
         onClick={() => {
           if (onValueChange) {
-            if (/sepelio/i.test(triggerLabel) || /cobrador/i.test(triggerLabel)) onValueChange('SI');
+            if (/ciudad/i.test(triggerLabel)) onValueChange('Rosario');
+            else if (/sexo/i.test(triggerLabel)) onValueChange('Hombre');
+            else if (/sepelio/i.test(triggerLabel) || /cobrador/i.test(triggerLabel)) onValueChange('SI');
             else onValueChange('A');
           }
         }}
@@ -103,7 +110,10 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
     await userEvent.type(screen.getByLabelText(/^nombre$/i), 'Juan');
     await userEvent.type(screen.getByLabelText(/apellido/i), 'Pérez');
     fireEvent.change(screen.getByLabelText(/fecha de nacimiento/i), { target: { value: '1990-01-01' } });
-    await userEvent.type(screen.getByLabelText(/ciudad/i), 'Buenos Aires');
+    fireEvent.click(screen.getByTestId('mock-select-Sexo'));
+    const ciudadRow = screen.getByText('Rosario').closest('tr');
+    fireEvent.click(within(ciudadRow!).getByRole('button', { name: /elegir/i }));
+    expect(screen.getByLabelText(/^ciudad$/i)).toHaveValue('Rosario');
     await userEvent.type(screen.getByLabelText(/calle/i), 'Falsa');
     await userEvent.type(screen.getByLabelText(/altura/i), '123');
     fireEvent.change(screen.getByLabelText(/fecha de alta/i), { target: { value: '2024-01-01' } });
@@ -111,12 +121,16 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
     fireEvent.click(screen.getByLabelText(/plan/i));
     fireEvent.click(screen.getByLabelText(/cobrador/i));
 
-    await userEvent.type((await screen.findAllByLabelText(/teléfono/i))[0], '12345678');
-    const agregarButtons = screen.getAllByRole('button', { name: /agregar/i });
-    await userEvent.click(agregarButtons[0]);
+    await userEvent.type(screen.getByLabelText(/nº de afiliado de la obra social/i), 'PAMI-12345678');
 
-    await userEvent.type((await screen.findAllByLabelText(/correo electrónico/i))[0], 'test@example.com');
-    await userEvent.click(agregarButtons[1]);
+    await userEvent.type((await screen.findAllByLabelText(/teléfono/i))[0]!, '12345678');
+    const agregarButtons = screen.getAllByRole('button', { name: /agregar/i });
+    await userEvent.click(agregarButtons[0]!);
+
+    await userEvent.type((await screen.findAllByLabelText(/correo electrónico/i))[0]!, 'test@example.com');
+    await userEvent.click(agregarButtons[1]!);
+
+    await userEvent.type(screen.getByLabelText(/^observaciones$/i), 'Socio de prueba');
 
     fireEvent.click(await screen.findByRole('button', { name: /grabar/i }));
 
@@ -125,6 +139,10 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
         nroDocumento: '12345678',
         nombre: 'Juan',
         apellido: 'Pérez',
+        sexo: 'Hombre',
+        ciudad: 'Rosario',
+        nroAfiliadoObraSocial: 'PAMI-12345678',
+        observaciones: 'Socio de prueba',
         telefonos: ['12345678'],
         correos: ['test@example.com'],
       }));
@@ -137,14 +155,17 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
       nombre: 'Carlos',
       apellido: 'González',
       fechaNacimiento: '1975-06-18',
+      sexo: 'Hombre',
       ciudad: 'Rosario',
       calle: 'Mitre',
       altura: '980',
       fechaAlta: '2023-01-10',
       obraSocial: 'OSDE',
+      nroAfiliadoObraSocial: 'OSDE-12345678',
       plan: 'A',
       sepelio: 'SI',
       cobrador: 'SI',
+      observaciones: 'Socio existente',
       telefonos: ['341500600'],
       correos: ['carlos@test.com'],
     });
@@ -158,7 +179,10 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/^nombre$/i)).toHaveValue('Carlos');
       expect(screen.getByLabelText(/apellido/i)).toHaveValue('González');
-      expect(screen.getByLabelText(/ciudad/i)).toHaveValue('Rosario');
+      expect(screen.getByLabelText(/^ciudad$/i)).toHaveValue('Rosario');
+      expect(screen.getByTestId('mock-select-Sexo')).toHaveAttribute('data-value', 'Hombre');
+      expect(screen.getByLabelText(/nº de afiliado de la obra social/i)).toHaveValue('OSDE-12345678');
+      expect(screen.getByLabelText(/^observaciones$/i)).toHaveValue('Socio existente');
     });
 
     fireEvent.click(screen.getByRole('button', { name: /grabar/i }));
@@ -168,6 +192,9 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
         nroDocumento: '12345678',
         nombre: 'Carlos',
         apellido: 'González',
+        sexo: 'Hombre',
+        nroAfiliadoObraSocial: 'OSDE-12345678',
+        observaciones: 'Socio existente',
       }));
     });
   });
@@ -222,6 +249,7 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
       expect(create).not.toHaveBeenCalled();
       expect(screen.getByText(/el nombre debe tener al menos 2 letras/i)).toBeInTheDocument();
       expect(screen.getByText(/la ciudad es obligatoria/i)).toBeInTheDocument();
+      expect(screen.getByText(/el sexo es obligatorio/i)).toBeInTheDocument();
     });
   });
 
@@ -241,14 +269,17 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
       apellido: 'Pérez',
       nroDocumento: '12345678',
       fechaNacimiento: '1990-01-01',
+      sexo: 'Hombre',
       ciudad: 'Buenos Aires',
       calle: 'Falsa',
       altura: '123',
       fechaAlta: '2024-01-01',
       obraSocial: 'PAMI',
+      nroAfiliadoObraSocial: 'PAMI-12345678',
       plan: 'A',
       sepelio: 'SI',
       cobrador: 'NO',
+      observaciones: 'Observaciones de edición',
       telefonos: ['3412345678'],
       correos: ['juan.perez@example.com'],
     });
@@ -260,7 +291,98 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
       expect(get).toHaveBeenCalledWith('1');
       expect(screen.getByLabelText(/^nombre$/i)).toHaveValue('Juan');
       expect(screen.getByLabelText(/apellido/i)).toHaveValue('Pérez');
+      expect(screen.getByTestId('mock-select-Sexo')).toHaveAttribute('data-value', 'Hombre');
+      expect(screen.getByLabelText(/^observaciones$/i)).toHaveValue('Observaciones de edición');
     });
+  });
+
+  it('debe permitir elegir codeudores de la lista de socios y guardarlos', async () => {
+    const findByDocumento = jest.fn().mockResolvedValue({
+      nroDocumento: '12345678',
+      nombre: 'Carlos',
+      apellido: 'González',
+      fechaNacimiento: '1975-06-18',
+      sexo: 'Hombre',
+      ciudad: 'Rosario',
+      calle: 'Mitre',
+      altura: '980',
+      fechaAlta: '2023-01-10',
+      obraSocial: 'OSDE',
+      plan: 'A',
+      sepelio: 'SI',
+      cobrador: 'SI',
+      telefonos: [],
+      correos: [],
+      codeudores: [],
+    });
+    const list = jest.fn().mockResolvedValue([
+      { id: '2', nombre: 'María', apellido: 'Gómez', nroDocumento: '20123456', obraSocial: 'OSDE', plan: 'B', estado: 'Activo' },
+      { id: '3', nombre: 'Carlos', apellido: 'Rodríguez', nroDocumento: '34567890', obraSocial: 'IAPOS', plan: 'A', estado: 'Baja' },
+    ]);
+    const create = jest.fn().mockResolvedValue(undefined);
+    renderPage(makeFake({ findByDocumento, list, create }));
+
+    await userEvent.type(screen.getByLabelText(/^documento$/i), '12345678');
+    fireEvent.click(screen.getByRole('button', { name: /^buscar$/i }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/^nombre$/i)).toHaveValue('Carlos');
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /agregar codeudor/i }));
+
+    const row = (await screen.findByText('Gómez')).closest('tr')!;
+    fireEvent.click(within(row).getByRole('button', { name: /elegir/i }));
+
+    expect(screen.getByText(/Gómez, María — DNI 20123456/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /grabar/i }));
+
+    await waitFor(() => {
+      expect(create).toHaveBeenCalledWith(expect.objectContaining({
+        codeudores: [{ id: '2', nombre: 'María', apellido: 'Gómez', nroDocumento: '20123456' }],
+      }));
+    });
+  });
+
+  it('debe precargar los codeudores existentes al editar y no mostrarlos como disponibles', async () => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams('edit=10'));
+    const get = jest.fn().mockResolvedValue({
+      id: '10',
+      nombre: 'Verónica',
+      apellido: 'Ruiz',
+      nroDocumento: '89012345',
+      fechaNacimiento: '1992-11-25',
+      sexo: 'Mujer',
+      ciudad: 'Cañada de Gómez',
+      calle: 'Buenos Aires',
+      altura: '486',
+      fechaAlta: '2024-08-12',
+      obraSocial: 'Jerárquicos Salud',
+      plan: 'B',
+      sepelio: 'NO',
+      cobrador: 'NO',
+      telefonos: [],
+      correos: [],
+      codeudores: [
+        { id: '1', nombre: 'Juan', apellido: 'Pérez', nroDocumento: '12345678' },
+      ],
+    });
+    const list = jest.fn().mockResolvedValue([
+      { id: '1', nombre: 'Juan', apellido: 'Pérez', nroDocumento: '12345678', obraSocial: 'PAMI', plan: 'A', estado: 'Activo' },
+      { id: '4', nombre: 'Ana', apellido: 'Martínez', nroDocumento: '45678901', obraSocial: 'PAMI', plan: 'B', estado: 'Activo' },
+    ]);
+    const update = jest.fn().mockResolvedValue(undefined);
+    renderPage(makeFake({ get, list, update }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Pérez, Juan — DNI 12345678/i)).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /agregar codeudor/i }));
+
+    expect(screen.queryByText('Pérez')).not.toBeInTheDocument();
+    expect(screen.getByText('Martínez')).toBeInTheDocument();
   });
 
   it('en modo edicion, Grabar llama a service.update con el id y los datos', async () => {
@@ -271,6 +393,7 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
       apellido: 'Pérez',
       nroDocumento: '12345678',
       fechaNacimiento: '1990-01-01',
+      sexo: 'Mujer',
       ciudad: 'Buenos Aires',
       calle: 'Falsa',
       altura: '123',
@@ -294,6 +417,7 @@ describe('Módulo de Socios - Registro (Comportamiento)', () => {
         nombre: 'Juan',
         apellido: 'Pérez',
         nroDocumento: '12345678',
+        sexo: 'Mujer',
       }));
     });
   });

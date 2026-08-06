@@ -8,14 +8,17 @@ const mockSocio: SocioDetalle = {
   apellido: 'Pérez',
   nroDocumento: '12345678',
   fechaNacimiento: '1990-01-01',
+  sexo: 'Hombre',
   ciudad: 'Buenos Aires',
   calle: 'Falsa',
   altura: '123',
   fechaAlta: '2024-01-01',
   obraSocial: 'PAMI',
+  nroAfiliadoObraSocial: 'PAMI-12345678',
   plan: 'A',
   sepelio: 'SI',
   cobrador: 'NO',
+  observaciones: 'Socio con domicilio particular en Buenos Aires.',
   telefonos: ['3412345678'],
   correos: ['juan.perez@example.com'],
 };
@@ -81,8 +84,52 @@ describe('SocioDetalleCard', () => {
   it('debe mostrar todos los campos de la cobertura', () => {
     render(<SocioDetalleCard socio={mockSocio} />);
     expect(screen.getByText('PAMI')).toBeInTheDocument();
+    expect(screen.getByText('PAMI-12345678')).toBeInTheDocument();
     expect(screen.getByText('A')).toBeInTheDocument();
     expect(screen.getByText('Incluido')).toBeInTheDocument();
     expect(screen.getByText('No asignado')).toBeInTheDocument();
+  });
+
+  it('debe mostrar el sexo del socio', () => {
+    render(<SocioDetalleCard socio={mockSocio} />);
+    expect(screen.getByText('Hombre')).toBeInTheDocument();
+  });
+
+  it('debe mostrar guion cuando el sexo no está definido', () => {
+    const sinSexo = { ...mockSocio, sexo: undefined };
+    render(<SocioDetalleCard socio={sinSexo} />);
+    expect(screen.getByText('—')).toBeInTheDocument();
+  });
+
+  it('debe mostrar las observaciones del socio', () => {
+    render(<SocioDetalleCard socio={mockSocio} />);
+    expect(screen.getByText('Socio con domicilio particular en Buenos Aires.')).toBeInTheDocument();
+  });
+
+  it('debe mostrar guion cuando no hay observaciones', () => {
+    const sinObs = { ...mockSocio, observaciones: undefined };
+    render(<SocioDetalleCard socio={sinObs} />);
+    expect(screen.getByText('—')).toBeInTheDocument();
+  });
+
+  it('debe mostrar los codeudores con nombre y DNI', () => {
+    const conCodeudores = {
+      ...mockSocio,
+      codeudores: [
+        { id: '2', nombre: 'María', apellido: 'Gómez', nroDocumento: '20123456' },
+        { id: '4', nombre: 'Ana', apellido: 'Martínez', nroDocumento: '45678901' },
+      ],
+    };
+    render(<SocioDetalleCard socio={conCodeudores} />);
+    expect(screen.getByText('Codeudores')).toBeInTheDocument();
+    expect(screen.getByText('Gómez, María')).toBeInTheDocument();
+    expect(screen.getByText('DNI 20123456')).toBeInTheDocument();
+    expect(screen.getByText('Martínez, Ana')).toBeInTheDocument();
+    expect(screen.getByText('DNI 45678901')).toBeInTheDocument();
+  });
+
+  it('no debe mostrar la seccion de codeudores si no hay', () => {
+    render(<SocioDetalleCard socio={mockSocio} />);
+    expect(screen.queryByText('Codeudores')).not.toBeInTheDocument();
   });
 });

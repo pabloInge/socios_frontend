@@ -19,7 +19,6 @@ import {
   FileText,
   HeartHandshake,
   Lock,
-  Coins,
   TrendingUp,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -78,12 +77,6 @@ const navItems: NavItem[] = [
         label: "Configuración cuotas",
         icon: <CreditCard size={18} />,
         url: "/dashboard/socios/configuracion-cuotas",
-      },
-      {
-        id: "config_metodos_pago",
-        label: "Configuración métodos pago",
-        icon: <Coins size={18} />,
-        url: "/dashboard/socios/configuracion-metodos-pago",
       },
     ],
   },

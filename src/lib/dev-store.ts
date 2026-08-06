@@ -40,7 +40,14 @@ export function devGetSocios(): SocioListItem[] {
 
 export function devGetSocioDetalle(id: string): SocioDetalle | null {
   const found = state.detalle.find((s) => s.id === id)
-  return found ? { ...found, telefonos: [...found.telefonos], correos: [...found.correos] } : null
+  return found
+    ? {
+        ...found,
+        telefonos: [...found.telefonos],
+        correos: [...found.correos],
+        codeudores: found.codeudores?.map((c) => ({ ...c })),
+      }
+    : null
 }
 
 export function devAddSocio(data: SocioFormData): string {
@@ -51,17 +58,21 @@ export function devAddSocio(data: SocioFormData): string {
     apellido: data.apellido,
     nroDocumento: data.nroDocumento,
     fechaNacimiento: data.fechaNacimiento,
+    sexo: data.sexo,
     ciudad: data.ciudad,
     calle: data.calle,
     altura: data.altura,
     fechaAlta: data.fechaAlta,
     fechaBaja: data.fechaBaja,
     obraSocial: data.obraSocial,
+    nroAfiliadoObraSocial: data.nroAfiliadoObraSocial,
     plan: data.plan,
     sepelio: data.sepelio,
     cobrador: data.cobrador,
+    observaciones: data.observaciones,
     telefonos: normalizeContacts(data.telefonos),
     correos: normalizeContacts(data.correos),
+    codeudores: (data.codeudores ?? []).map((c) => ({ ...c })),
   }
   state.detalle.push(detalle)
   state.list.push(toListItem(detalle))
@@ -72,23 +83,28 @@ export function devUpdateSocio(id: string, data: SocioFormData): boolean {
   const idx = state.detalle.findIndex((s) => s.id === id)
   if (idx === -1) return false
   const prev = state.detalle[idx]
+  if (!prev) return false
   const updated: SocioDetalle = {
     ...prev,
     nombre: data.nombre,
     apellido: data.apellido,
     nroDocumento: data.nroDocumento,
     fechaNacimiento: data.fechaNacimiento,
+    sexo: data.sexo,
     ciudad: data.ciudad,
     calle: data.calle,
     altura: data.altura,
     fechaAlta: data.fechaAlta,
     fechaBaja: data.fechaBaja,
     obraSocial: data.obraSocial,
+    nroAfiliadoObraSocial: data.nroAfiliadoObraSocial,
     plan: data.plan,
     sepelio: data.sepelio,
     cobrador: data.cobrador,
+    observaciones: data.observaciones,
     telefonos: normalizeContacts(data.telefonos),
     correos: normalizeContacts(data.correos),
+    codeudores: (data.codeudores ?? []).map((c) => ({ ...c })),
   }
   state.detalle[idx] = updated
   const lidx = state.list.findIndex((s) => s.id === id)
@@ -103,7 +119,12 @@ export function devFindSocioByDocumento(
     (s) => s.nroDocumento === nroDocumento
   )
   return found
-    ? { ...found, telefonos: [...found.telefonos], correos: [...found.correos] }
+    ? {
+        ...found,
+        telefonos: [...found.telefonos],
+        correos: [...found.correos],
+        codeudores: found.codeudores?.map((c) => ({ ...c })),
+      }
     : null
 }
 
@@ -112,4 +133,13 @@ export function devRemoveSocio(id: string): boolean {
   state.list = state.list.filter((s) => s.id !== id)
   state.detalle = state.detalle.filter((s) => s.id !== id)
   return state.list.length < before
+}
+
+export function devReactivateSocio(id: string): boolean {
+  const detalle = state.detalle.find((s) => s.id === id)
+  if (!detalle) return false
+  const updated: SocioDetalle = { ...detalle, fechaBaja: undefined }
+  state.detalle = state.detalle.map((s) => (s.id === id ? updated : s))
+  state.list = state.list.map((s) => (s.id === id ? toListItem(updated) : s))
+  return true
 }

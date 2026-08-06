@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Plus, Edit, Trash2 } from "lucide-react"
+import { Plus, Edit, Trash2, UserCheck } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { DataTable, type Column } from "@/components/ui/data-table"
@@ -23,6 +23,7 @@ export default function SociosPage() {
   const [socios, setSocios] = React.useState<SocioListItem[]>([])
   const [loading, setLoading] = React.useState(true)
   const [socioToDelete, setSocioToDelete] = React.useState<SocioListItem | null>(null)
+  const [reactivatingId, setReactivatingId] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     let cancelled = false
@@ -53,6 +54,23 @@ export default function SociosPage() {
       console.error("Error al eliminar socio:", err)
     } finally {
       setSocioToDelete(null)
+    }
+  }
+
+  const handleReactivar = async (socio: SocioListItem) => {
+    if (reactivatingId) return
+    setReactivatingId(socio.id)
+    try {
+      const ok = await sociosService.reactivate(socio.id)
+      if (ok) {
+        setSocios((prev) =>
+          prev.map((s) => (s.id === socio.id ? { ...s, estado: "Activo" } : s))
+        )
+      }
+    } catch (err) {
+      console.error("Error al reactivar socio:", err)
+    } finally {
+      setReactivatingId(null)
     }
   }
 
@@ -126,31 +144,44 @@ export default function SociosPage() {
         loading={loading}
         emptyMessage="No se encontraron socios"
         onRowClick={(s) => router.push(`/dashboard/socios/${s.id}`)}
-        renderActions={(s) => (
-          <>
+        renderActions={(s) =>
+          s.estado === "Baja" ? (
             <Button
               variant="ghost"
               size="icon"
-              title="Editar"
-              aria-label="Editar"
-              onClick={() =>
-                router.push(`/dashboard/socios/nuevo?edit=${s.id}`)
-              }
+              title="Reactivar"
+              aria-label="Reactivar"
+              disabled={reactivatingId === s.id}
+              onClick={() => handleReactivar(s)}
             >
-              <Edit />
+              <UserCheck />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              title="Eliminar"
-              aria-label="Eliminar"
-              className="text-destructive"
-              onClick={() => setSocioToDelete(s)}
-            >
-              <Trash2 />
-            </Button>
-          </>
-        )}
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                title="Editar"
+                aria-label="Editar"
+                onClick={() =>
+                  router.push(`/dashboard/socios/nuevo?edit=${s.id}`)
+                }
+              >
+                <Edit />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                title="Eliminar"
+                aria-label="Eliminar"
+                className="text-destructive"
+                onClick={() => setSocioToDelete(s)}
+              >
+                <Trash2 />
+              </Button>
+            </>
+          )
+        }
       />
 
       <Link

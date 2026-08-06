@@ -143,7 +143,7 @@ describe('DataTable', () => {
       renderTable();
       const user = await openFilters();
       const combos = screen.getAllByRole('combobox', { hidden: true });
-      await user.click(combos[1]);
+      await user.click(combos[1]!);
       const listbox = await screen.findByRole('listbox');
       await user.click(within(listbox).getByRole('option', { name: 'Activo' }));
 

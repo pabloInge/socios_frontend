@@ -87,7 +87,7 @@ export function ConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[420px] p-6 gap-6">
+      <DialogContent className="sm:max-w-[420px] p-6">
         <DialogHeader className="flex flex-col items-center sm:items-start text-center sm:text-left gap-2">
           <div className="space-y-1">
             <DialogTitle className="text-lg font-semibold tracking-tight text-foreground">
