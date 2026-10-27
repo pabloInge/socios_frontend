@@ -1,4 +1,4 @@
-﻿import * as React from "react";
+import * as React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import EntidadesPage from "./page";
 import * as actions from "./actions";
@@ -83,7 +83,7 @@ describe("EntidadesPage", () => {
     });
 
     const verFichaButtons = screen.getAllByRole("button", { name: /ver ficha/i });
-    fireEvent.click(verFichaButtons[0]);
+    fireEvent.click(verFichaButtons[0]!);
 
     await waitFor(() => {
       expect(actions.obtenerEntidadPorDni).toHaveBeenCalledWith("20304050607");

@@ -74,7 +74,7 @@ describe("Entidades Server Actions", () => {
       expect(res[1]?.id).toBe("2");
       expect(res[1]?.tipo).toBe("Jurídica");
       expect(res[1]?.razonSocial).toBe("Emergencias Médicas S.A.");
-      expect(fetchAPI).toHaveBeenCalledWith("/buscarentidad/buscar?filtro=Juan", "tok");
+      expect(fetchAPI).toHaveBeenCalledWith("/buscarentidad/buscar?Busqueda=Juan", "tok");
     });
 
     it("si la API falla devuelve array vacío sin lanzar excepción", async () => {

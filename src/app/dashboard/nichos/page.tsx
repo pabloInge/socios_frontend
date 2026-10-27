@@ -1,12 +1,18 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
-import { Landmark, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, Trash2, UserPlus } from "lucide-react";
 
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { fabVariants } from "@/components/ui/fab";
+import { cn } from "@/lib/utils";
 import { type NichoItem } from "./schema";
-import { obtenerNichos } from "./actions";
+import { obtenerNichos, darDeBajaNicho } from "./actions";
+import { CrearNichoDialog } from "./crear-nicho-dialog";
+import { AsignarNichoDialog } from "./asignar-nicho-dialog";
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("es-AR", {
@@ -19,6 +25,12 @@ function formatCurrency(amount: number): string {
 export default function NichosPage() {
   const [nichos, setNichos] = React.useState<NichoItem[]>([]);
   const [loading, setLoading] = React.useState(true);
+
+  // Modales
+  const [modalCrearOpen, setModalCrearOpen] = React.useState(false);
+  const [nichoParaAsignar, setNichoParaAsignar] = React.useState<NichoItem | null>(null);
+  const [nichoParaEliminar, setNichoParaEliminar] = React.useState<NichoItem | null>(null);
+  const [eliminando, setEliminando] = React.useState(false);
 
   const cargarNichos = React.useCallback(async () => {
     setLoading(true);
@@ -35,6 +47,21 @@ export default function NichosPage() {
   React.useEffect(() => {
     cargarNichos();
   }, [cargarNichos]);
+
+  const handleConfirmarBaja = async () => {
+    if (!nichoParaEliminar) return;
+
+    setEliminando(true);
+    try {
+      const res = await darDeBajaNicho(Number(nichoParaEliminar.id));
+      if (res.success) {
+        setNichoParaEliminar(null);
+        await cargarNichos();
+      }
+    } finally {
+      setEliminando(false);
+    }
+  };
 
   // Cálculos para tarjetas de métricas
   const totalNichos = nichos.length;
@@ -73,11 +100,12 @@ export default function NichosPage() {
       header: "Estado",
       accessor: (n) => (
         <span
-          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          className={cn(
+            "inline-flex items-center rounded-[8px] h-8 px-3.5 text-sm font-medium",
             n.ocupado
-              ? "bg-amber-100 text-amber-900 dark:bg-amber-900/30 dark:text-amber-300"
-              : "bg-emerald-100 text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-300"
-          }`}
+              ? "bg-primary-container text-on-primary-container"
+              : "bg-surface-variant text-on-surface-variant font-medium"
+          )}
         >
           {n.ocupado ? "Ocupado" : "Disponible"}
         </span>
@@ -96,25 +124,25 @@ export default function NichosPage() {
       accessor: (n) =>
         n.socio ? (
           <span className="font-medium text-foreground">
-            {n.socio.apellido}, {n.socio.nombre}
+            {n.socio.apellido ? `${n.socio.apellido}, ${n.socio.nombre}` : n.socio.nombre}
           </span>
         ) : (
           <span className="text-on-surface-variant italic">Sin asignar</span>
         ),
       searchable: true,
       searchAccessor: (n) =>
-        n.socio ? `${n.socio.nombre} ${n.socio.apellido} ${n.socio.apellido} ${n.socio.nombre}` : "",
+        n.socio ? `${n.socio.nombre} ${n.socio.apellido}` : "",
     },
     {
       key: "valorNicho",
       header: "Valor Nicho",
-      accessor: (n) => formatCurrency(n.valorNicho),
+      accessor: (n) => (n.valorNicho > 0 ? formatCurrency(n.valorNicho) : "-"),
       className: "tabular-nums",
     },
     {
       key: "valorLapida",
       header: "Valor Lápida",
-      accessor: (n) => formatCurrency(n.valorLapida),
+      accessor: (n) => (n.valorLapida > 0 ? formatCurrency(n.valorLapida) : "-"),
       className: "tabular-nums",
     },
     {
@@ -123,45 +151,41 @@ export default function NichosPage() {
       accessor: (n) =>
         n.cuotas > 0
           ? `${n.cuotas} cuotas (${(n.interes * 100).toFixed(0)}% int.)`
-          : "Contado",
+          : n.ocupado
+          ? "Contado"
+          : "-",
       className: "text-xs text-on-surface-variant",
     },
   ];
 
   return (
     <div className="relative h-full p-4 md:p-8 space-y-6">
-      <h1 className="text-2xl font-bold mb-6">Nichos y Panteón</h1>
+      <h1 className="text-2xl font-bold mb-6">Gestión de Nichos</h1>
 
-      {/* Tarjetas de Métricas M3 */}
+      {/* Tarjetas de Métricas */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card variant="outlined" className="p-4 bg-background flex items-center gap-4">
-          <div className="p-3 bg-primary/10 text-primary rounded-xl">
-            <Landmark className="size-6" />
-          </div>
-          <div>
-            <p className="text-xs text-on-surface-variant font-medium">Total de Nichos</p>
-            <p className="text-2xl font-bold text-foreground mt-0.5">{totalNichos}</p>
-          </div>
+        <Card
+          interactive={false}
+          className="p-5 flex flex-col items-center justify-center text-center rounded-2xl border-0 shadow-none bg-rose-400 text-white"
+        >
+          <p className="text-3xl font-bold tracking-tight">{totalNichos}</p>
+          <p className="text-xs font-medium mt-1 text-white/90">Total de Nichos</p>
         </Card>
 
-        <Card variant="outlined" className="p-4 bg-background flex items-center gap-4">
-          <div className="p-3 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-xl">
-            <XCircle className="size-6" />
-          </div>
-          <div>
-            <p className="text-xs text-on-surface-variant font-medium">Ocupados / Concesionados</p>
-            <p className="text-2xl font-bold text-foreground mt-0.5">{ocupados}</p>
-          </div>
+        <Card
+          interactive={false}
+          className="p-5 flex flex-col items-center justify-center text-center rounded-2xl border-0 shadow-none bg-sky-500 text-white"
+        >
+          <p className="text-3xl font-bold tracking-tight">{ocupados}</p>
+          <p className="text-xs font-medium mt-1 text-white/90">Ocupados / Concesionados</p>
         </Card>
 
-        <Card variant="outlined" className="p-4 bg-background flex items-center gap-4">
-          <div className="p-3 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl">
-            <CheckCircle2 className="size-6" />
-          </div>
-          <div>
-            <p className="text-xs text-on-surface-variant font-medium">Disponibles</p>
-            <p className="text-2xl font-bold text-foreground mt-0.5">{disponibles}</p>
-          </div>
+        <Card
+          interactive={false}
+          className="p-5 flex flex-col items-center justify-center text-center rounded-2xl border-0 shadow-none bg-violet-400 text-white"
+        >
+          <p className="text-3xl font-bold tracking-tight">{disponibles}</p>
+          <p className="text-xs font-medium mt-1 text-white/90">Disponibles</p>
         </Card>
       </div>
 
@@ -174,6 +198,72 @@ export default function NichosPage() {
         loading={loading}
         searchPlaceholder="Buscar por socio, número de nicho o sector..."
         emptyMessage={loading ? "Cargando nichos..." : "No se encontraron nichos"}
+        renderActions={(n) =>
+          !n.ocupado ? (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                title="Asignar"
+                aria-label={`Asignar nicho ${n.nroNicho}`}
+                onClick={() => setNichoParaAsignar(n)}
+              >
+                <UserPlus />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                title="Eliminar"
+                aria-label={`Eliminar nicho ${n.nroNicho}`}
+                className="text-destructive"
+                onClick={() => setNichoParaEliminar(n)}
+              >
+                <Trash2 />
+              </Button>
+            </>
+          ) : (
+            <span className="text-xs text-on-surface-variant/70 italic px-2">Concesionado</span>
+          )
+        }
+      />
+
+      <button
+        type="button"
+        onClick={() => setModalCrearOpen(true)}
+        className={cn(
+          fabVariants({ variant: "primary", size: "large" }),
+          "fixed bottom-8 right-8"
+        )}
+        aria-label="Nuevo nicho"
+      >
+        <Plus />
+      </button>
+
+      {/* Modal de Creación */}
+      <CrearNichoDialog
+        open={modalCrearOpen}
+        onOpenChange={setModalCrearOpen}
+        onSuccess={cargarNichos}
+      />
+
+      {/* Modal de Asignación */}
+      <AsignarNichoDialog
+        open={nichoParaAsignar !== null}
+        nicho={nichoParaAsignar}
+        onOpenChange={(open) => !open && setNichoParaAsignar(null)}
+        onSuccess={cargarNichos}
+      />
+
+      {/* Confirmación de Baja */}
+      <ConfirmDialog
+        open={nichoParaEliminar !== null}
+        onOpenChange={(open) => !open && setNichoParaEliminar(null)}
+        title="Eliminar Nicho"
+        description={`¿Está seguro de que desea eliminar el nicho #${nichoParaEliminar?.nroNicho} del Sector ${nichoParaEliminar?.sector}? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        variant="destructive"
+        loading={eliminando}
+        onConfirm={handleConfirmarBaja}
       />
     </div>
   );

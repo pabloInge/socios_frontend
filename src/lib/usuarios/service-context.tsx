@@ -3,6 +3,8 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react"
 import { createUsuariosService, type UsuariosService } from "./service"
 
+export type { UsuariosService } from "./service"
+
 const UsuariosServiceContext = createContext<UsuariosService | null>(null)
 
 interface ProviderProps {

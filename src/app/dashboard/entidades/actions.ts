@@ -30,7 +30,7 @@ export async function buscarEntidades(
   if (!token) return [];
 
   const queryParams = new URLSearchParams();
-  if (filtro) queryParams.set("filtro", filtro);
+  if (filtro) queryParams.set("Busqueda", filtro);
 
   const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
 

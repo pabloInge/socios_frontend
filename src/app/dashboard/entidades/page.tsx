@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
-import { Users, Building2, User, Eye, MapPin, Calendar, FileText } from "lucide-react";
+import { Building2, User, Eye, MapPin, Calendar, FileText } from "lucide-react";
 
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { Card } from "@/components/ui/card";
@@ -139,36 +139,30 @@ export default function EntidadesPage() {
     <div className="relative h-full p-4 md:p-8 space-y-6">
       <h1 className="text-2xl font-bold mb-6">Padrón General de Entidades</h1>
 
-      {/* Tarjetas de Métricas M3 */}
+      {/* Tarjetas de Métricas */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card variant="outlined" className="p-4 bg-background flex items-center gap-4">
-          <div className="p-3 bg-primary/10 text-primary rounded-xl">
-            <Users className="size-6" />
-          </div>
-          <div>
-            <p className="text-xs text-on-surface-variant font-medium">Total de Entidades</p>
-            <p className="text-2xl font-bold text-foreground mt-0.5">{total}</p>
-          </div>
+        <Card
+          interactive={false}
+          className="p-5 flex flex-col items-center justify-center text-center rounded-2xl border-0 shadow-none bg-rose-400 text-white"
+        >
+          <p className="text-3xl font-bold tracking-tight">{total}</p>
+          <p className="text-xs font-medium mt-1 text-white/90">Total de Entidades</p>
         </Card>
 
-        <Card variant="outlined" className="p-4 bg-background flex items-center gap-4">
-          <div className="p-3 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl">
-            <User className="size-6" />
-          </div>
-          <div>
-            <p className="text-xs text-on-surface-variant font-medium">Personas Físicas</p>
-            <p className="text-2xl font-bold text-foreground mt-0.5">{fisicas}</p>
-          </div>
+        <Card
+          interactive={false}
+          className="p-5 flex flex-col items-center justify-center text-center rounded-2xl border-0 shadow-none bg-sky-500 text-white"
+        >
+          <p className="text-3xl font-bold tracking-tight">{fisicas}</p>
+          <p className="text-xs font-medium mt-1 text-white/90">Personas Físicas</p>
         </Card>
 
-        <Card variant="outlined" className="p-4 bg-background flex items-center gap-4">
-          <div className="p-3 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-xl">
-            <Building2 className="size-6" />
-          </div>
-          <div>
-            <p className="text-xs text-on-surface-variant font-medium">Personas Jurídicas</p>
-            <p className="text-2xl font-bold text-foreground mt-0.5">{juridicas}</p>
-          </div>
+        <Card
+          interactive={false}
+          className="p-5 flex flex-col items-center justify-center text-center rounded-2xl border-0 shadow-none bg-violet-400 text-white"
+        >
+          <p className="text-3xl font-bold tracking-tight">{juridicas}</p>
+          <p className="text-xs font-medium mt-1 text-white/90">Personas Jurídicas</p>
         </Card>
       </div>
 

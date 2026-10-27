@@ -2,7 +2,15 @@
 
 import { fetchAPI } from "@/lib/apiClient";
 import { getAuthToken } from "@/lib/auth";
+import { findCiudadIdByName } from "@/lib/ciudades";
+import { findObraSocialIdByName } from "@/lib/obras-sociales";
 import type { Codeudor } from "@/app/dashboard/socios/nuevo/schema";
+
+export interface SocioFiltroDto {
+  busqueda?: string;
+  dni?: string;
+  incluirInactivos?: boolean;
+}
 
 export interface SocioListItem {
   id: string;
@@ -80,7 +88,7 @@ export interface BackendSocioDetalle {
   codeudores?: Codeudor[];
 }
 
-export async function obtenerSocios(): Promise<SocioListItem[]> {
+export async function obtenerSocios(filtro?: SocioFiltroDto): Promise<SocioListItem[]> {
   const token = await getAuthToken();
 
   if (!token) {
@@ -90,7 +98,7 @@ export async function obtenerSocios(): Promise<SocioListItem[]> {
   try {
     const raw = await fetchAPI<BackendSocioListItem[]>("/socios", token, {
       method: "GET",
-      body: JSON.stringify({}),
+      body: JSON.stringify(filtro || {}),
     });
     if (!Array.isArray(raw)) return [];
     return raw.map((s) => {
@@ -183,5 +191,61 @@ export async function reactivarSocio(id: string): Promise<boolean> {
     return true;
   } catch {
     return false;
+  }
+}
+
+export interface SocioModificarData {
+  ciudad: string;
+  calle: string;
+  altura: string | number;
+  observaciones?: string;
+  obraSocial?: string;
+  nroAfiliadoObraSocial?: string;
+  plan?: string;
+  sepelio?: string;
+  cobrador?: string;
+  telefonos: (string | { value: string })[];
+  correos?: (string | { value: string })[];
+}
+
+export async function modificarSocio(
+  id: string,
+  data: SocioModificarData
+): Promise<{ success: boolean; mensaje?: string }> {
+  const token = await getAuthToken();
+
+  if (!token) {
+    return { success: false, mensaje: "No autenticado" };
+  }
+
+  try {
+    const payload = {
+      idSocio: Number(id),
+      idCiudad: findCiudadIdByName(data.ciudad),
+      calle: data.calle,
+      altura: parseInt(String(data.altura), 10) || 0,
+      observaciones: data.observaciones || undefined,
+      idObraSocial: findObraSocialIdByName(data.obraSocial),
+      numeroAfiliado: data.nroAfiliadoObraSocial || undefined,
+      plan: data.plan || undefined,
+      sepelio: data.sepelio || undefined,
+      cobrador: data.cobrador || undefined,
+      telefonos: (data.telefonos || [])
+        .map((t) => (typeof t === "string" ? t.trim() : t.value.trim()))
+        .filter(Boolean),
+      emails: (data.correos || [])
+        .map((c) => (typeof c === "string" ? c.trim() : c.value.trim()))
+        .filter(Boolean),
+    };
+
+    const res = await fetchAPI<{ mensaje: string }>("/socios/modificar", token, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+
+    return { success: true, mensaje: res?.mensaje || "Socio modificado correctamente." };
+  } catch (err: unknown) {
+    const mensaje = err instanceof Error ? err.message : "Error al modificar socio";
+    return { success: false, mensaje };
   }
 }

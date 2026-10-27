@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { SocioDetalleCard } from './socio-detalle';
 import type { SocioDetalle } from '@/app/dashboard/socios/actions';
 
@@ -131,5 +131,14 @@ describe('SocioDetalleCard', () => {
   it('no debe mostrar la seccion de codeudores si no hay', () => {
     render(<SocioDetalleCard socio={mockSocio} />);
     expect(screen.queryByText('Codeudores')).not.toBeInTheDocument();
+  });
+
+  it('debe ejecutar callback onEditar al hacer click en Editar', () => {
+    const handleEditar = jest.fn();
+    render(<SocioDetalleCard socio={mockSocio} onEditar={handleEditar} />);
+    const editarBtn = screen.getByRole('button', { name: /Editar/i });
+    expect(editarBtn).toBeInTheDocument();
+    fireEvent.click(editarBtn);
+    expect(handleEditar).toHaveBeenCalledTimes(1);
   });
 });

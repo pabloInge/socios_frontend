@@ -14,14 +14,15 @@ import {
   reactivarSocio,
   type SocioListItem,
   type SocioDetalle,
+  type SocioFiltroDto,
 } from "@/app/dashboard/socios/actions"
 import { guardarSocio, actualizarSocio, buscarSocioPorDocumento } from "@/app/dashboard/socios/nuevo/actions"
 import type { SocioFormData } from "@/app/dashboard/socios/nuevo/schema"
 
-export type { SocioListItem, SocioDetalle, SocioFormData }
+export type { SocioListItem, SocioDetalle, SocioFormData, SocioFiltroDto }
 
 export interface SociosService {
-  list(): Promise<SocioListItem[]>
+  list(filtro?: SocioFiltroDto): Promise<SocioListItem[]>
   get(id: string): Promise<SocioDetalle | null>
   findByDocumento(nroDocumento: string): Promise<(SocioFormData & { id?: string }) | null>
   create(data: SocioFormData): Promise<void>
@@ -56,8 +57,21 @@ function detalleToFormData(d: SocioDetalle): SocioFormData & { id?: string } {
 }
 
 class MockSociosService implements SociosService {
-  async list(): Promise<SocioListItem[]> {
-    return devGetSocios()
+  async list(filtro?: SocioFiltroDto): Promise<SocioListItem[]> {
+    let result = devGetSocios();
+    if (filtro?.incluirInactivos === false) {
+      result = result.filter((s) => s.estado === "Activo");
+    }
+    if (filtro?.busqueda) {
+      const b = filtro.busqueda.toLowerCase();
+      result = result.filter(
+        (s) => s.nombre.toLowerCase().includes(b) || s.apellido.toLowerCase().includes(b)
+      );
+    }
+    if (filtro?.dni) {
+      result = result.filter((s) => s.nroDocumento.includes(filtro.dni!));
+    }
+    return result;
   }
   async get(id: string): Promise<SocioDetalle | null> {
     return devGetSocioDetalle(id)
@@ -81,8 +95,8 @@ class MockSociosService implements SociosService {
 }
 
 class ApiSociosService implements SociosService {
-  async list(): Promise<SocioListItem[]> {
-    return obtenerSocios()
+  async list(filtro?: SocioFiltroDto): Promise<SocioListItem[]> {
+    return obtenerSocios(filtro)
   }
   async get(id: string): Promise<SocioDetalle | null> {
     return obtenerSocioDetalle(id)

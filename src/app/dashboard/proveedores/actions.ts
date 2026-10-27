@@ -44,10 +44,15 @@ export async function obtenerProveedores(filtros?: {
   if (!token) return [];
 
   const queryParams = new URLSearchParams();
-  if (filtros?.filtro) queryParams.set("filtro", filtros.filtro);
-  if (filtros?.cuitCuil) queryParams.set("cuitCuil", filtros.cuitCuil);
+  if (filtros?.filtro) queryParams.set("Busqueda", filtros.filtro);
+  if (filtros?.cuitCuil) queryParams.set("CuitCuil", filtros.cuitCuil);
   if (filtros?.estado && filtros.estado !== "Todos") {
     queryParams.set("estado", filtros.estado);
+    if (filtros.estado === "Inactivo") {
+      queryParams.set("IncluirInactivos", "true");
+    }
+  } else if (filtros?.estado === "Todos") {
+    queryParams.set("IncluirInactivos", "true");
   }
 
   const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";

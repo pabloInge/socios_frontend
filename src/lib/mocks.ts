@@ -410,12 +410,16 @@ export const MOCK_PROVEEDORES = [
 export const MOCK_NICHOS = [
   {
     id_Nicho: 1,
-    nroNicho: 45,
+    id_Entidad: 1,
+    entidadNombre: "Oldan, Luciano",
+    nroNicho: "45",
     sector: "A",
-    ocupado: true,
+    ocupado: "SI",
+    conLapida: "SI",
     valorNicho: 50000,
     valorLapida: 15000,
     cuotas: 12,
+    interesMensual: 0.05,
     interes: 0.05,
     socio: {
       id_Socio: 1,
@@ -425,23 +429,31 @@ export const MOCK_NICHOS = [
   },
   {
     id_Nicho: 2,
-    nroNicho: 46,
+    id_Entidad: null,
+    entidadNombre: null,
+    nroNicho: "46",
     sector: "A",
-    ocupado: false,
+    ocupado: "NO",
+    conLapida: "NO",
     valorNicho: 50000,
-    valorLapida: 15000,
-    cuotas: 12,
-    interes: 0.05,
+    valorLapida: 0,
+    cuotas: 0,
+    interesMensual: 0,
+    interes: 0,
     socio: null,
   },
   {
     id_Nicho: 3,
-    nroNicho: 12,
+    id_Entidad: 2,
+    entidadNombre: "Gómez, María",
+    nroNicho: "12",
     sector: "B",
-    ocupado: true,
+    ocupado: "SI",
+    conLapida: "SI",
     valorNicho: 60000,
     valorLapida: 18000,
     cuotas: 24,
+    interesMensual: 0.08,
     interes: 0.08,
     socio: {
       id_Socio: 2,
@@ -451,14 +463,135 @@ export const MOCK_NICHOS = [
   },
   {
     id_Nicho: 4,
-    nroNicho: 13,
+    id_Entidad: null,
+    entidadNombre: null,
+    nroNicho: "13",
     sector: "B",
-    ocupado: false,
+    ocupado: "NO",
+    conLapida: "NO",
     valorNicho: 60000,
-    valorLapida: 18000,
-    cuotas: 24,
-    interes: 0.08,
+    valorLapida: 0,
+    cuotas: 0,
+    interesMensual: 0,
+    interes: 0,
     socio: null,
+  },
+];
+
+export const MOCK_COLABORADORES = [
+  {
+    id_Colaborador: 1,
+    id_Entidad: 10,
+    tipoDocumento: "DNI",
+    documento: "28111222",
+    dni: "28111222",
+    cuitCuil: null,
+    nombre: "Esteban",
+    apellido: "Quito",
+    razonSocial: null,
+    sexo: "Hombre",
+    nacimiento: "1980-04-12",
+    fechaNacimiento: "1980-04-12",
+    prestacion: "Atención Médica",
+    idPrestacion: 1,
+    estado: "Activo",
+    ciudad: { id_Ciudad: 2, nombre: "Rosario" },
+    calle: "Corrientes",
+    altura: 450,
+    observacion: "Atiende por la mañana",
+    telefonos: ["3414556677"],
+    emails: ["esteban.quito@example.com"],
+  },
+  {
+    id_Colaborador: 2,
+    id_Entidad: 11,
+    tipoDocumento: "CUIT",
+    documento: "30708090102",
+    dni: null,
+    cuitCuil: "30708090102",
+    nombre: "Farmacia",
+    apellido: "Central",
+    razonSocial: "Farmacia Central S.R.L.",
+    sexo: "-",
+    nacimiento: "2012-08-20",
+    fechaNacimiento: "2012-08-20",
+    prestacion: "Farmacia",
+    idPrestacion: 2,
+    estado: "Inactivo",
+    ciudad: { id_Ciudad: 1, nombre: "Buenos Aires" },
+    calle: "Rivadavia",
+    altura: 1200,
+    observacion: null,
+    telefonos: ["1144556677"],
+    emails: ["contacto@farmaciacentral.com"],
+  },
+];
+
+export const MOCK_EMPLEADOS = [
+  {
+    id_Entidad: 101,
+    id_EntidadTipo: 101,
+    dni: "31222333",
+    cuitCuil: "20312223334",
+    nombre: "Carlos",
+    apellido: "López",
+    sexo: "Masculino",
+    nacimiento: "1988-04-12",
+    estado: "Activo",
+    ciudad: { id_Ciudad: 2, nombre: "Rosario" },
+    calle: "Pellegrini",
+    altura: 1240,
+    observacion: "Empleado del área contable",
+    telefonos: ["3414998877"],
+    emails: ["carlos.lopez@example.com"],
+  },
+  {
+    id_Entidad: 102,
+    id_EntidadTipo: 102,
+    dni: "32444555",
+    cuitCuil: "27324445558",
+    nombre: "Mariana",
+    apellido: "Ríos",
+    sexo: "Femenino",
+    nacimiento: "1992-09-20",
+    estado: "Inactivo",
+    ciudad: { id_Ciudad: 2, nombre: "Rosario" },
+    calle: "Corrientes",
+    altura: 780,
+    observacion: null,
+    telefonos: ["3415123456"],
+    emails: ["mariana.rios@example.com"],
+  },
+];
+
+export const MOCK_SOCIOS_ASIGNABLES_NICHO = [
+  {
+    idSocio: 1,
+    idEntidad: 1,
+    nombre: "Juan",
+    apellido: "Pérez",
+    dni: "12345678",
+  },
+  {
+    idSocio: 2,
+    idEntidad: 2,
+    nombre: "María",
+    apellido: "Gómez",
+    dni: "20123456",
+  },
+  {
+    idSocio: 4,
+    idEntidad: 4,
+    nombre: "Ana",
+    apellido: "Martínez",
+    dni: "45678901",
+  },
+  {
+    idSocio: 5,
+    idEntidad: 5,
+    nombre: "Roberto",
+    apellido: "López",
+    dni: "20345678",
   },
 ];
 
@@ -504,6 +637,57 @@ export const MOCK_ENTIDADES = [
   },
 ];
 
+export const MOCK_CONFIGURACION_CUOTAS = [
+  {
+    id_TipoCuota: 1,
+    concepto: "SOCIO",
+    importe: 4500,
+    edad: "SIN TOPE",
+    plan: "-",
+    ultimaModificacion: "2026-03-10T00:00:00",
+  },
+  {
+    id_TipoCuota: 2,
+    concepto: "SEPELIO",
+    importe: 10000,
+    edad: "HASTA 65",
+    plan: "A",
+    ultimaModificacion: "2026-03-10T00:00:00",
+  },
+  {
+    id_TipoCuota: 3,
+    concepto: "SEPELIO",
+    importe: 12000,
+    edad: "HASTA 65",
+    plan: "B",
+    ultimaModificacion: "2026-03-10T00:00:00",
+  },
+  {
+    id_TipoCuota: 4,
+    concepto: "SEPELIO",
+    importe: 12000,
+    edad: "MAS DE 65",
+    plan: "A",
+    ultimaModificacion: "2026-03-10T00:00:00",
+  },
+  {
+    id_TipoCuota: 5,
+    concepto: "SEPELIO",
+    importe: 14000,
+    edad: "MAS DE 65",
+    plan: "B",
+    ultimaModificacion: "2026-03-10T00:00:00",
+  },
+  {
+    id_TipoCuota: 6,
+    concepto: "NICHO",
+    importe: 300000,
+    edad: "SIN TOPE",
+    plan: "-",
+    ultimaModificacion: "2026-03-10T00:00:00",
+  },
+];
+
 export function getMockResponse(endpoint: string, options?: RequestInit): unknown {
   if (endpoint === "/me" || endpoint.startsWith("/me")) {
     return {
@@ -523,10 +707,69 @@ export function getMockResponse(endpoint: string, options?: RequestInit): unknow
     return { mensaje: "El socio fue dado de baja correctamente." };
   }
   if (endpoint === "/socios/modificar") {
+    let body: {
+      idSocio?: number;
+      calle?: string;
+      altura?: number;
+      observaciones?: string;
+      plan?: string;
+      sepelio?: string;
+      cobrador?: string;
+      telefonos?: string[];
+      emails?: string[];
+    } = {};
+    if (options?.body) {
+      try {
+        body = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+      } catch {}
+    }
+    const socio = MOCK_SOCIOS_DETALLE.find((s) => s.id === String(body.idSocio));
+    if (socio) {
+      socio.calle = body.calle ?? socio.calle;
+      socio.altura = body.altura ? String(body.altura) : socio.altura;
+      socio.observaciones = body.observaciones ?? socio.observaciones;
+      socio.plan = body.plan ?? socio.plan;
+      socio.sepelio = body.sepelio ?? socio.sepelio;
+      socio.cobrador = body.cobrador ?? socio.cobrador;
+      if (body.telefonos) socio.telefonos = body.telefonos;
+      if (body.emails) socio.correos = body.emails;
+    }
     return { mensaje: "El socio fue modificado correctamente." };
   }
   if (endpoint === "/socios") {
-    return MOCK_SOCIOS_BACKEND;
+    let filtro: { busqueda?: string; dni?: string; incluirInactivos?: boolean } = {};
+    if (options?.body) {
+      try {
+        filtro = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+      } catch {}
+    }
+    let result = [...MOCK_SOCIOS_BACKEND];
+    if (filtro.incluirInactivos === false) {
+      result = result.filter((s) => s.estado === "ACTIVO");
+    }
+    if (filtro.busqueda) {
+      const b = filtro.busqueda.toLowerCase().trim();
+      result = result.filter(
+        (s) => s.nombre.toLowerCase().includes(b) || s.apellido.toLowerCase().includes(b)
+      );
+    }
+    if (filtro.dni) {
+      const d = filtro.dni.trim();
+      result = result.filter((s) => s.dni.includes(d));
+    }
+    return result;
+  }
+  if (endpoint.startsWith("/socios/asignables-nicho")) {
+    const query = endpoint.includes("?") ? endpoint.split("?")[1] : "";
+    const params = new URLSearchParams(query);
+    const busqueda = (params.get("busqueda") || "").toLowerCase().trim();
+    if (!busqueda) return MOCK_SOCIOS_ASIGNABLES_NICHO;
+    return MOCK_SOCIOS_ASIGNABLES_NICHO.filter(
+      (s) =>
+        s.nombre.toLowerCase().includes(busqueda) ||
+        s.apellido.toLowerCase().includes(busqueda) ||
+        s.dni.includes(busqueda)
+    );
   }
   if (endpoint.startsWith("/socios/")) {
     const id = endpoint.split("/socios/")[1];
@@ -581,13 +824,44 @@ export function getMockResponse(endpoint: string, options?: RequestInit): unknow
     return MOCK_USUARIOS;
   }
   if (endpoint.startsWith("/ciudades/buscar")) {
-    return MOCK_CIUDADES.map((c) => ({ id_Ciudad: Number(c.id), nombre: c.nombre }));
+    const queryIdx = endpoint.indexOf("?");
+    let busqueda = "";
+    if (queryIdx !== -1) {
+      const params = new URLSearchParams(endpoint.slice(queryIdx));
+      busqueda = (params.get("Busqueda") || params.get("busqueda") || "").toLowerCase().trim();
+    }
+    const filtered = busqueda
+      ? MOCK_CIUDADES.filter((c) => c.nombre.toLowerCase().includes(busqueda))
+      : MOCK_CIUDADES;
+    return filtered.map((c) => ({ id_Ciudad: Number(c.id), nombre: c.nombre }));
   }
   if (endpoint.startsWith("/obrassociales/buscar")) {
-    return MOCK_OBRAS_SOCIALES.map((o) => ({ id_ObraSocial: Number(o.id), nombreObraSocial: o.nombre }));
+    const queryIdx = endpoint.indexOf("?");
+    let busqueda = "";
+    if (queryIdx !== -1) {
+      const params = new URLSearchParams(endpoint.slice(queryIdx));
+      busqueda = (params.get("Busqueda") || params.get("busqueda") || "").toLowerCase().trim();
+    }
+    const filtered = busqueda
+      ? MOCK_OBRAS_SOCIALES.filter((o) => o.nombre.toLowerCase().includes(busqueda))
+      : MOCK_OBRAS_SOCIALES;
+    return filtered.map((o) => ({ id_ObraSocial: Number(o.id), nombreObraSocial: o.nombre }));
   }
   if (endpoint.startsWith("/buscarentidad/buscar")) {
-    return MOCK_ENTIDADES;
+    const queryIdx = endpoint.indexOf("?");
+    let busqueda = "";
+    if (queryIdx !== -1) {
+      const params = new URLSearchParams(endpoint.slice(queryIdx));
+      busqueda = (params.get("Busqueda") || params.get("busqueda") || params.get("filtro") || "").toLowerCase().trim();
+    }
+    const filtered = busqueda
+      ? MOCK_ENTIDADES.filter((e) =>
+          e.nombre.toLowerCase().includes(busqueda) ||
+          e.apellido.toLowerCase().includes(busqueda) ||
+          e.cuitCuil.includes(busqueda)
+        )
+      : MOCK_ENTIDADES;
+    return filtered;
   }
   if (endpoint.startsWith("/buscarentidad")) {
     return MOCK_ENTIDADES[0];
@@ -662,10 +936,429 @@ export function getMockResponse(endpoint: string, options?: RequestInit): unknow
     return found || MOCK_PROVEEDORES[0];
   }
   if (endpoint.startsWith("/proveedores")) {
-    return MOCK_PROVEEDORES;
+    const queryIdx = endpoint.indexOf("?");
+    let busqueda = "";
+    if (queryIdx !== -1) {
+      const params = new URLSearchParams(endpoint.slice(queryIdx));
+      busqueda = (params.get("Busqueda") || params.get("busqueda") || params.get("filtro") || "").toLowerCase().trim();
+    }
+    const filtered = busqueda
+      ? MOCK_PROVEEDORES.filter((p) =>
+          (p.razonSocial && p.razonSocial.toLowerCase().includes(busqueda)) ||
+          p.cuitCuil.includes(busqueda)
+        )
+      : MOCK_PROVEEDORES;
+    return filtered;
+  }
+  if (endpoint === "/nichos/crear") {
+    let body: { sector?: string; nroNicho?: string } = {};
+    if (options?.body) {
+      try {
+        body = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+      } catch {}
+    }
+    const nextId = Math.max(...MOCK_NICHOS.map((n) => n.id_Nicho), 0) + 1;
+    const nuevo = {
+      id_Nicho: nextId,
+      id_Entidad: null,
+      entidadNombre: null,
+      sector: String(body.sector || "A"),
+      nroNicho: String(body.nroNicho || nextId),
+      valorNicho: 0,
+      valorLapida: 0,
+      conLapida: "NO",
+      ocupado: "NO",
+      cuotas: 0,
+      interesMensual: 0,
+      interes: 0,
+      socio: null,
+    };
+    MOCK_NICHOS.push(nuevo);
+    return { idNicho: nextId };
+  }
+  if (endpoint === "/nichos/baja") {
+    let body: { idNicho?: number } = {};
+    if (options?.body) {
+      try {
+        body = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+      } catch {}
+    }
+    const idx = MOCK_NICHOS.findIndex((n) => n.id_Nicho === body.idNicho);
+    if (idx !== -1) {
+      MOCK_NICHOS.splice(idx, 1);
+    }
+    return { mensaje: "El nicho fue eliminado correctamente." };
+  }
+  if (endpoint === "/nichos/asignar") {
+    let body: {
+      idNicho?: number;
+      idEntidad?: number;
+      valorTotal?: number;
+      cuotas?: number;
+      interesPorCuota?: number;
+      conLapida?: string;
+      valorLapida?: number;
+    } = {};
+    if (options?.body) {
+      try {
+        body = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+      } catch {}
+    }
+    const nicho = MOCK_NICHOS.find((n) => n.id_Nicho === body.idNicho);
+    if (nicho) {
+      nicho.ocupado = "SI";
+      nicho.id_Entidad = body.idEntidad ?? null;
+      const socioFound = MOCK_SOCIOS_ASIGNABLES_NICHO.find((s) => s.idEntidad === body.idEntidad);
+      if (socioFound) {
+        nicho.entidadNombre = `${socioFound.apellido}, ${socioFound.nombre}`;
+        nicho.socio = {
+          id_Socio: socioFound.idSocio,
+          nombre: socioFound.nombre,
+          apellido: socioFound.apellido,
+        };
+      }
+      nicho.valorNicho = Number(body.valorTotal) || 0;
+      nicho.cuotas = Number(body.cuotas) || 0;
+      nicho.interesMensual = Number(body.interesPorCuota) || 0;
+      nicho.interes = nicho.interesMensual;
+      nicho.conLapida = body.conLapida === "SI" ? "SI" : "NO";
+      nicho.valorLapida = Number(body.valorLapida) || 0;
+    }
+    return { mensaje: "El nicho fue asignado correctamente." };
   }
   if (endpoint.startsWith("/nichos/buscar") || endpoint.startsWith("/nichos")) {
-    return MOCK_NICHOS;
+    const query = endpoint.includes("?") ? endpoint.split("?")[1] : "";
+    const params = new URLSearchParams(query);
+    const busqueda = (params.get("Busqueda") || params.get("busqueda") || "").toLowerCase().trim();
+    const sectorNumero = (params.get("SectorNumero") || params.get("sectorNumero") || "").toLowerCase().trim();
+    const ocupadoParam = params.get("Ocupado") || params.get("ocupado");
+
+    let result = [...MOCK_NICHOS];
+    if (busqueda) {
+      result = result.filter(
+        (n) =>
+          (n.entidadNombre && n.entidadNombre.toLowerCase().includes(busqueda)) ||
+          (n.socio &&
+            (n.socio.nombre.toLowerCase().includes(busqueda) ||
+              n.socio.apellido.toLowerCase().includes(busqueda)))
+      );
+    }
+    if (sectorNumero) {
+      result = result.filter(
+        (n) =>
+          n.sector.toLowerCase().includes(sectorNumero) ||
+          String(n.nroNicho).includes(sectorNumero)
+      );
+    }
+    if (ocupadoParam !== null && ocupadoParam !== undefined) {
+      const soloLibres = ocupadoParam === "false";
+      if (soloLibres) {
+        result = result.filter((n) => n.ocupado === "NO" || String(n.ocupado).toUpperCase() === "NO");
+      }
+    }
+    return result;
+  }
+  if (endpoint.startsWith("/configuracion-cuotas/modificar-socio")) {
+    let body: { id_TipoCuota?: number; importe?: number } = {};
+    if (options?.body) {
+      try {
+        body = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+      } catch {}
+    }
+    const cuota = MOCK_CONFIGURACION_CUOTAS.find((c) => c.id_TipoCuota === body.id_TipoCuota);
+    if (cuota) {
+      cuota.importe = Number(body.importe);
+      cuota.ultimaModificacion = new Date().toISOString();
+    }
+    return { mensaje: "El importe de la cuota de socio fue modificado correctamente." };
+  }
+  if (endpoint.startsWith("/configuracion-cuotas/modificar-sepelio-con-tope")) {
+    let body: { id_TipoCuota?: number; importe?: number; edadTope?: number } = {};
+    if (options?.body) {
+      try {
+        body = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+      } catch {}
+    }
+    const cuota = MOCK_CONFIGURACION_CUOTAS.find((c) => c.id_TipoCuota === body.id_TipoCuota);
+    if (cuota) {
+      cuota.importe = Number(body.importe);
+      cuota.edad = `HASTA ${body.edadTope}`;
+      cuota.ultimaModificacion = new Date().toISOString();
+      const hermana = MOCK_CONFIGURACION_CUOTAS.find(
+        (c) => c.concepto === "SEPELIO" && c.plan === cuota.plan && c.edad.startsWith("MAS DE")
+      );
+      if (hermana) {
+        hermana.edad = `MAS DE ${body.edadTope}`;
+      }
+    }
+    return { mensaje: "La cuota de sepelio (con tope) fue modificada correctamente." };
+  }
+  if (endpoint.startsWith("/configuracion-cuotas/modificar-sepelio-sin-tope")) {
+    let body: { id_TipoCuota?: number; importe?: number } = {};
+    if (options?.body) {
+      try {
+        body = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+      } catch {}
+    }
+    const cuota = MOCK_CONFIGURACION_CUOTAS.find((c) => c.id_TipoCuota === body.id_TipoCuota);
+    if (cuota) {
+      cuota.importe = Number(body.importe);
+      cuota.ultimaModificacion = new Date().toISOString();
+    }
+    return { mensaje: "La cuota de sepelio (más de) fue modificada correctamente." };
+  }
+  if (endpoint.startsWith("/configuracion-cuotas")) {
+    const query = endpoint.includes("?") ? endpoint.split("?")[1] : "";
+    const params = new URLSearchParams(query);
+    const concepto = params.get("Concepto") || params.get("concepto");
+    if (concepto && concepto.toLowerCase() !== "todos") {
+      return MOCK_CONFIGURACION_CUOTAS.filter(
+        (c) => c.concepto.toLowerCase() === concepto.toLowerCase()
+      );
+    }
+    return MOCK_CONFIGURACION_CUOTAS;
+  }
+  if (endpoint === "/colaboradores/crear") {
+    let body: {
+      tipoDocumento?: string;
+      documento?: string;
+      nombre?: string;
+      apellido?: string;
+      razonSocial?: string;
+      fechaNacimiento?: string;
+      prestacion?: string;
+      idPrestacion?: number;
+      idCiudad?: number;
+      calle?: string;
+      altura?: number;
+      observaciones?: string;
+      telefonos?: string[];
+      emails?: string[];
+    } = {};
+    if (options?.body) {
+      try {
+        body = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+      } catch {}
+    }
+    const nextColabId = Math.max(...MOCK_COLABORADORES.map((c) => c.id_Colaborador), 0) + 1;
+    const nextEntidadId = Math.max(...MOCK_COLABORADORES.map((c) => c.id_Entidad), 0) + 1;
+    const nuevo = {
+      id_Colaborador: nextColabId,
+      id_Entidad: nextEntidadId,
+      tipoDocumento: body.tipoDocumento || "DNI",
+      documento: body.documento || "",
+      dni: body.tipoDocumento === "DNI" ? body.documento : null,
+      cuitCuil: body.tipoDocumento === "CUIT" ? body.documento : null,
+      nombre: body.nombre || "",
+      apellido: body.apellido || "",
+      razonSocial: body.razonSocial || null,
+      sexo: "Otro",
+      nacimiento: body.fechaNacimiento || "1990-01-01",
+      fechaNacimiento: body.fechaNacimiento || "1990-01-01",
+      prestacion: body.prestacion || "Atención Médica",
+      idPrestacion: body.idPrestacion || 1,
+      estado: "Activo",
+      ciudad: { id_Ciudad: body.idCiudad || 1, nombre: "Rosario" },
+      calle: body.calle || "",
+      altura: Number(body.altura) || 0,
+      observacion: body.observaciones || null,
+      telefonos: body.telefonos || [],
+      emails: body.emails || [],
+    };
+    MOCK_COLABORADORES.push(nuevo as any);
+    return { idColaborador: nextColabId };
+  }
+  if (endpoint.startsWith("/colaboradores/baja/")) {
+    const idEntidadTipo = Number(endpoint.replace("/colaboradores/baja/", ""));
+    const colab = MOCK_COLABORADORES.find(
+      (c) => c.id_Colaborador === idEntidadTipo || c.id_Entidad === idEntidadTipo
+    );
+    if (colab) {
+      colab.estado = "Inactivo";
+    }
+    return { mensaje: "Colaborador dado de baja correctamente" };
+  }
+  if (endpoint.startsWith("/colaboradores/reactivar")) {
+    let body: { idEntidad?: number } = {};
+    if (options?.body) {
+      try {
+        body = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+      } catch {}
+    }
+    const colab = MOCK_COLABORADORES.find(
+      (c) => c.id_Entidad === body.idEntidad || c.id_Colaborador === body.idEntidad
+    );
+    if (colab) {
+      colab.estado = "Activo";
+    }
+    return { mensaje: "El colaborador fue reactivado correctamente." };
+  }
+  if (endpoint.startsWith("/colaboradores/modificar")) {
+    let body: {
+      idEntidad?: number;
+      nombre?: string;
+      apellido?: string;
+      razonSocial?: string;
+      calle?: string;
+      altura?: number;
+      observaciones?: string;
+      telefonos?: string[];
+      emails?: string[];
+    } = {};
+    if (options?.body) {
+      try {
+        body = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+      } catch {}
+    }
+    const colab = MOCK_COLABORADORES.find(
+      (c) => c.id_Entidad === body.idEntidad || c.id_Colaborador === body.idEntidad
+    );
+    if (colab) {
+      colab.nombre = body.nombre ?? colab.nombre;
+      colab.apellido = body.apellido ?? colab.apellido;
+      colab.razonSocial = body.razonSocial ?? colab.razonSocial;
+      colab.calle = body.calle ?? colab.calle;
+      colab.altura = body.altura ?? colab.altura;
+      colab.observacion = body.observaciones ?? colab.observacion;
+      if (body.telefonos) colab.telefonos = body.telefonos;
+      if (body.emails) colab.emails = body.emails;
+    }
+    return { mensaje: "El colaborador fue modificado correctamente." };
+  }
+  if (endpoint.match(/^\/colaboradores\/\d+$/)) {
+    const id = Number(endpoint.replace("/colaboradores/", ""));
+    const found = MOCK_COLABORADORES.find(
+      (c) => c.id_Entidad === id || c.id_Colaborador === id
+    );
+    return found || MOCK_COLABORADORES[0];
+  }
+  if (endpoint.startsWith("/colaboradores/buscar") || endpoint.startsWith("/colaboradores")) {
+    const query = endpoint.includes("?") ? endpoint.split("?")[1] : "";
+    const params = new URLSearchParams(query);
+    const busqueda = (params.get("busqueda") || "").toLowerCase().trim();
+    if (!busqueda) return MOCK_COLABORADORES;
+    return MOCK_COLABORADORES.filter(
+      (c) =>
+        (c.nombre && c.nombre.toLowerCase().includes(busqueda)) ||
+        (c.apellido && c.apellido.toLowerCase().includes(busqueda)) ||
+        (c.razonSocial && c.razonSocial.toLowerCase().includes(busqueda)) ||
+        (c.dni && c.dni.includes(busqueda)) ||
+        (c.cuitCuil && c.cuitCuil.includes(busqueda))
+    );
+  }
+  if (endpoint.startsWith("/Empleados/alta") || endpoint.startsWith("/empleados/alta")) {
+    let body: {
+      dni?: string;
+      nombre?: string;
+      apellido?: string;
+      sexo?: string;
+      nacimiento?: string;
+      idCiudad?: number;
+      calle?: string;
+      altura?: number;
+      observaciones?: string;
+      telefonos?: string[];
+      emails?: string[];
+    } = {};
+    if (options?.body) {
+      try {
+        body = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+      } catch {}
+    }
+    const nextId =
+      MOCK_EMPLEADOS.length > 0
+        ? Math.max(...MOCK_EMPLEADOS.map((e) => e.id_Entidad)) + 1
+        : 101;
+    const nuevo = {
+      id_Entidad: nextId,
+      id_EntidadTipo: nextId,
+      dni: body.dni || "",
+      cuitCuil: body.dni ? `20${body.dni}9` : null,
+      nombre: body.nombre || "",
+      apellido: body.apellido || "",
+      sexo: body.sexo || "Otro",
+      nacimiento: body.nacimiento || "1990-01-01",
+      estado: "Activo",
+      ciudad: { id_Ciudad: body.idCiudad || 1, nombre: "Rosario" },
+      calle: body.calle || "",
+      altura: Number(body.altura) || 0,
+      observacion: body.observaciones || null,
+      telefonos: body.telefonos || [],
+      emails: body.emails || [],
+    };
+    MOCK_EMPLEADOS.push(nuevo as any);
+    return { id: nextId, mensaje: `Empleado ${body.nombre} ${body.apellido} creado correctamente.` };
+  }
+  if (endpoint.startsWith("/Empleados/baja/") || endpoint.startsWith("/empleados/baja/")) {
+    const rawId = endpoint.replace(/^\/[eE]mpleados\/baja\//, "");
+    const idEntidadTipo = Number(rawId);
+    let motivo = "Baja solicitada";
+    if (options?.body) {
+      try {
+        const parsed = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+        if (parsed.motivo) motivo = parsed.motivo;
+      } catch {}
+    }
+    const emp = MOCK_EMPLEADOS.find(
+      (e) => e.id_EntidadTipo === idEntidadTipo || e.id_Entidad === idEntidadTipo
+    );
+    if (emp) {
+      emp.estado = "Inactivo";
+    }
+    return { mensaje: `Empleado dado de baja correctamente con motivo: ${motivo}` };
+  }
+  if (endpoint.startsWith("/Empleados/modificar") || endpoint.startsWith("/empleados/modificar")) {
+    let body: {
+      idEntidad?: number;
+      nombre?: string;
+      apellido?: string;
+      sexo?: string;
+      nacimiento?: string;
+      idCiudad?: number;
+      calle?: string;
+      altura?: number;
+      observaciones?: string;
+      telefonos?: string[];
+      emails?: string[];
+    } = {};
+    if (options?.body) {
+      try {
+        body = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+      } catch {}
+    }
+    const emp = MOCK_EMPLEADOS.find((e) => e.id_Entidad === body.idEntidad);
+    if (emp) {
+      emp.nombre = body.nombre ?? emp.nombre;
+      emp.apellido = body.apellido ?? emp.apellido;
+      emp.sexo = body.sexo ?? emp.sexo;
+      emp.nacimiento = body.nacimiento ?? emp.nacimiento;
+      emp.calle = body.calle ?? emp.calle;
+      emp.altura = body.altura ?? emp.altura;
+      emp.observacion = body.observaciones ?? emp.observacion;
+      if (body.telefonos) emp.telefonos = body.telefonos;
+      if (body.emails) emp.emails = body.emails;
+    }
+    return { mensaje: `Empleado ${body.idEntidad} modificado correctamente.` };
+  }
+  if (endpoint.match(/^\/[eE]mpleados\/\d+$/)) {
+    const id = Number(endpoint.replace(/^\/[eE]mpleados\//, ""));
+    const found = MOCK_EMPLEADOS.find(
+      (e) => e.id_Entidad === id || e.id_EntidadTipo === id
+    );
+    return found || MOCK_EMPLEADOS[0];
+  }
+  if (endpoint.startsWith("/Empleados/buscar") || endpoint.startsWith("/empleados/buscar") || endpoint.startsWith("/Empleados") || endpoint.startsWith("/empleados")) {
+    const query = endpoint.includes("?") ? endpoint.split("?")[1] : "";
+    const params = new URLSearchParams(query);
+    const busqueda = (params.get("busqueda") || "").toLowerCase().trim();
+    if (!busqueda) return MOCK_EMPLEADOS;
+    return MOCK_EMPLEADOS.filter(
+      (e) =>
+        (e.nombre && e.nombre.toLowerCase().includes(busqueda)) ||
+        (e.apellido && e.apellido.toLowerCase().includes(busqueda)) ||
+        (e.dni && e.dni.includes(busqueda)) ||
+        (e.cuitCuil && e.cuitCuil.includes(busqueda))
+    );
   }
   throw new Error(`No hay mock definido para el endpoint: ${endpoint}`);
 }

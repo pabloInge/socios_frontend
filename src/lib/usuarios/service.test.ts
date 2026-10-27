@@ -76,7 +76,7 @@ describe("MockUsuariosService", () => {
 
   it("updateRol() debe actualizar el rol del usuario", async () => {
     const list = await service.list();
-    const target = list[0];
+    const target = list[0]!;
     const ok = await service.updateRol({ id_Usuario: target.id_Usuario, rol: "CONSULTOR" });
 
     expect(ok).toBe(true);
@@ -87,7 +87,7 @@ describe("MockUsuariosService", () => {
 
   it("updatePassword() debe retornar true para usuario existente", async () => {
     const list = await service.list();
-    const target = list[0];
+    const target = list[0]!;
     const ok = await service.updatePassword({
       id_Usuario: target.id_Usuario,
       password: "NewPassword123!",
@@ -99,7 +99,7 @@ describe("MockUsuariosService", () => {
 
   it("toggleEstado() debe alternar el estado del usuario", async () => {
     const list = await service.list();
-    const target = list[0];
+    const target = list[0]!;
     const estadoInicial = target.estado;
 
     const ok = await service.toggleEstado(target.id_Usuario);
@@ -127,7 +127,7 @@ describe("ApiUsuariosService", () => {
     const result = await service.list();
     expect(actions.obtenerUsuarios).toHaveBeenCalledTimes(1);
     expect(result).toHaveLength(1);
-    expect(result[0].usuario).toBe("API_USER");
+    expect(result[0]!.usuario).toBe("API_USER");
   });
 
   it("debe invocar crearUsuario() en create()", async () => {

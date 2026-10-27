@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import { Edit2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import type { SocioDetalle } from "@/app/dashboard/socios/actions"
@@ -27,7 +29,13 @@ function FieldRow({ label, value }: { label: string; value: string | null | unde
   )
 }
 
-export function SocioDetalleCard({ socio }: { socio: SocioDetalle }) {
+export function SocioDetalleCard({
+  socio,
+  onEditar,
+}: {
+  socio: SocioDetalle
+  onEditar?: () => void
+}) {
   return (
     <div className="space-y-8 mb-8">
       <Card variant="elevated">
@@ -41,6 +49,12 @@ export function SocioDetalleCard({ socio }: { socio: SocioDetalle }) {
                 DNI {socio.nroDocumento}
               </p>
             </div>
+            {onEditar && (
+              <Button variant="outline" size="sm" onClick={onEditar}>
+                <Edit2 className="size-4" />
+                Editar
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent className="pt-8">

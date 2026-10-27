@@ -1,4 +1,4 @@
-import { eliminarSocio, obtenerSocios, obtenerSocioDetalle } from './actions';
+import { eliminarSocio, obtenerSocios, obtenerSocioDetalle, modificarSocio } from './actions';
 
 jest.mock('next/headers', () => ({
   cookies: jest.fn(),
@@ -53,7 +53,7 @@ describe('Acciones del Servidor - Socios (API)', () => {
         plan: '',
         estado: 'Activo',
       });
-      expect(res[1].estado).toBe('Baja');
+      expect(res[1]?.estado).toBe('Baja');
     });
   });
 
@@ -147,6 +147,63 @@ describe('Acciones del Servidor - Socios (API)', () => {
       expect(res?.altura).toBe('250');
       expect(res?.nroAfiliadoObraSocial).toBe('123');
       expect(res?.correos).toEqual(['luciano@test.com']);
+    });
+  });
+
+  describe('modificarSocio', () => {
+    it('sin token devuelve success false', async () => {
+      (cookies as jest.Mock).mockResolvedValue({ get: () => undefined });
+      const res = await modificarSocio('1', {
+        ciudad: 'Rosario',
+        calle: 'San Martín',
+        altura: '500',
+        telefonos: ['341123456'],
+      });
+      expect(res.success).toBe(false);
+      expect(res.mensaje).toBe('No autenticado');
+    });
+
+    it('con token envía PUT a /socios/modificar con payload correcto', async () => {
+      (cookies as jest.Mock).mockResolvedValue({
+        get: (name: string) => (name === 'authToken' ? { value: 'token123' } : undefined),
+      });
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        text: async () => JSON.stringify({ mensaje: 'El socio fue modificado correctamente.' }),
+      }) as jest.Mock;
+
+      const res = await modificarSocio('1', {
+        ciudad: 'Rosario',
+        calle: 'Mitre',
+        altura: '100',
+        plan: 'A',
+        sepelio: 'SI',
+        cobrador: 'NO',
+        telefonos: [{ value: '3415556677' }],
+        correos: ['test@example.com'],
+      });
+
+      expect(res.success).toBe(true);
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:5000/api/socios/modificar',
+        expect.objectContaining({
+          method: 'PUT',
+          body: JSON.stringify({
+            idSocio: 1,
+            idCiudad: 3,
+            calle: 'Mitre',
+            altura: 100,
+            observaciones: undefined,
+            idObraSocial: undefined,
+            numeroAfiliado: undefined,
+            plan: 'A',
+            sepelio: 'SI',
+            cobrador: 'NO',
+            telefonos: ['3415556677'],
+            emails: ['test@example.com'],
+          }),
+        })
+      );
     });
   });
 });

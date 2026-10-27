@@ -71,7 +71,7 @@ describe("Proveedores Server Actions", () => {
       expect(res[0]?.razonSocial).toBe("Emergencias Médicas S.A.");
       expect(res[0]?.estado).toBe("Activo");
       expect(fetchAPI).toHaveBeenCalledWith(
-        "/proveedores?filtro=Emergencias",
+        "/proveedores?Busqueda=Emergencias",
         "tok"
       );
     });
